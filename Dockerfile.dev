@@ -1,0 +1,21 @@
+FROM golang:1.25-alpine
+
+RUN apk add --no-cache git curl ca-certificates
+
+RUN go install github.com/air-verse/air@latest
+
+RUN curl -sSfL https://release.ariga.io/atlas/atlas-linux-amd64-latest -o /usr/local/bin/atlas && \
+    chmod +x /usr/local/bin/atlas
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
+
+COPY . .
+
+RUN mkdir -p logs
+
+EXPOSE 8000
+
+CMD ["air", "-c", ".air.toml"]

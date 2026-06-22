@@ -1,0 +1,39 @@
+# ─── Version control ───────────────────────────────────────────────────────────
+.git
+.gitignore
+.gitattributes
+
+# ─── IDE / editor ─────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ─── Go build artifacts ────────────────────────────────────────────────────────
+/bin/
+/tmp/
+*.exe
+*.test
+*.out
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+logs/
+
+# ─── CI ───────────────────────────────────────────────────────────────────────
+.github/
+
+# ─── Graph ─────────────────────────────────────────────────────────────────────
+graphify-out/
+
+# ─── Not needed in container ──────────────────────────────────────────────────
+.dockerignore
+Dockerfile
+Dockerfile.dev
+docker-compose*.yml
+Makefile
+README.md
+AGENTS.md
+ddd_go.md
+LICENSE
+
+server
