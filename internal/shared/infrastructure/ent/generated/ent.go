@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"go-starter/internal/shared/infrastructure/ent/generated/userschema"
+	"go-starter/internal/shared/infrastructure/ent/generated/video"
 	"reflect"
 	"sync"
 
@@ -74,6 +75,7 @@ func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			userschema.Table: userschema.ValidColumn,
+			video.Table:      video.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

@@ -20,6 +20,18 @@ func (f UserSchemaFunc) Mutate(ctx context.Context, m generated.Mutation) (gener
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.UserSchemaMutation", m)
 }
 
+// The VideoFunc type is an adapter to allow the use of ordinary
+// function as Video mutator.
+type VideoFunc func(context.Context, *generated.VideoMutation) (generated.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f VideoFunc) Mutate(ctx context.Context, m generated.Mutation) (generated.Value, error) {
+	if mv, ok := m.(*generated.VideoMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *generated.VideoMutation", m)
+}
+
 // Condition is a hook condition function.
 type Condition func(context.Context, generated.Mutation) bool
 

@@ -9,11 +9,13 @@ import (
 
 	authdomain "go-starter/internal/auth/domain"
 	usersdomain "go-starter/internal/users/domain"
+	videosdomain "go-starter/internal/videos/domain"
 )
 
 var (
-	AuthErrorHandler func(error) *echo.HTTPError
-	UserErrorHandler func(error) *echo.HTTPError
+	AuthErrorHandler  func(error) *echo.HTTPError
+	UserErrorHandler  func(error) *echo.HTTPError
+	VideoErrorHandler func(error) *echo.HTTPError
 )
 
 func CustomHTTPErrorHandler(err error, c echo.Context) {
@@ -23,6 +25,7 @@ func CustomHTTPErrorHandler(err error, c echo.Context) {
 
 	var authErr authdomain.AuthError
 	var userErr usersdomain.UserError
+	var videoErr videosdomain.VideoError
 
 	switch {
 	case errors.As(err, &authErr):
@@ -35,6 +38,13 @@ func CustomHTTPErrorHandler(err error, c echo.Context) {
 	case errors.As(err, &userErr):
 		if UserErrorHandler != nil {
 			httpErr := UserErrorHandler(err)
+			_ = c.JSON(httpErr.Code, httpErr.Message)
+			return
+		}
+
+	case errors.As(err, &videoErr):
+		if VideoErrorHandler != nil {
+			httpErr := VideoErrorHandler(err)
 			_ = c.JSON(httpErr.Code, httpErr.Message)
 			return
 		}

@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// UserSchema is the client for interacting with the UserSchema builders.
 	UserSchema *UserSchemaClient
+	// Video is the client for interacting with the Video builders.
+	Video *VideoClient
 
 	// lazily loaded.
 	client     *Client
@@ -146,6 +148,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.UserSchema = NewUserSchemaClient(tx.config)
+	tx.Video = NewVideoClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

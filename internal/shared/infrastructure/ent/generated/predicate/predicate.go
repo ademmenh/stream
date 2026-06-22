@@ -8,3 +8,6 @@ import (
 
 // UserSchema is the predicate function for userschema builders.
 type UserSchema func(*sql.Selector)
+
+// Video is the predicate function for video builders.
+type Video func(*sql.Selector)
