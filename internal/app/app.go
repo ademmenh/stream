@@ -19,6 +19,9 @@ import (
 	"go-starter/internal/users"
 	usersinfra "go-starter/internal/users/infrastructure"
 	userspresentation "go-starter/internal/users/presentation"
+	"go-starter/internal/videos"
+	videosinfra "go-starter/internal/videos/infrastructure"
+	videospres "go-starter/internal/videos/presentation"
 )
 
 func CreateApp(cfg config.IConfig) *echo.Echo {
@@ -38,6 +41,7 @@ func CreateApp(cfg config.IConfig) *echo.Echo {
 
 	presentation.AuthErrorHandler = authpresentation.AuthErrorHandler
 	presentation.UserErrorHandler = userspresentation.UserErrorHandler
+	presentation.VideoErrorHandler = videospres.VideoErrorHandler
 
 	sharedinfra.InitLogger(cfg.LogsDirname())
 
@@ -87,6 +91,14 @@ func CreateApp(cfg config.IConfig) *echo.Echo {
 		PasswordAdapter: passwordAdapter,
 	})
 	usersModule.RegisterRoutes(v1.Group("/users"), cfg.JWTAccessTokenSecret())
+
+	videosModule := videos.NewModule(videos.Dependencies{
+		VideoRepo:    videosinfra.NewVideoRepository(client),
+		Storage:      videosinfra.NewVideoStorageAdapter(s3Adapter),
+		MessageQueue: videosinfra.NewInMemoryQueueAdapter(),
+		IDGenerator:  idGen,
+	})
+	videosModule.RegisterRoutes(v1, cfg.JWTAccessTokenSecret())
 
 	return e
 }

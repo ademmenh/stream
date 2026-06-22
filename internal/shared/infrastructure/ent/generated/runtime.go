@@ -4,6 +4,7 @@ package generated
 
 import (
 	"go-starter/internal/shared/infrastructure/ent/generated/userschema"
+	"go-starter/internal/shared/infrastructure/ent/generated/video"
 	"go-starter/internal/shared/infrastructure/ent/schema"
 	"time"
 
@@ -98,4 +99,42 @@ func init() {
 	userschemaDescID := userschemaFields[0].Descriptor()
 	// userschema.DefaultID holds the default value on creation for the id field.
 	userschema.DefaultID = userschemaDescID.Default.(func() uuid.UUID)
+	videoFields := schema.Video{}.Fields()
+	_ = videoFields
+	// videoDescTitle is the schema descriptor for title field.
+	videoDescTitle := videoFields[1].Descriptor()
+	// video.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	video.TitleValidator = func() func(string) error {
+		validators := videoDescTitle.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(title string) error {
+			for _, fn := range fns {
+				if err := fn(title); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// videoDescDescription is the schema descriptor for description field.
+	videoDescDescription := videoFields[2].Descriptor()
+	// video.DefaultDescription holds the default value on creation for the description field.
+	video.DefaultDescription = videoDescDescription.Default.(string)
+	// video.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	video.DescriptionValidator = videoDescDescription.Validators[0].(func(string) error)
+	// videoDescQualities is the schema descriptor for qualities field.
+	videoDescQualities := videoFields[5].Descriptor()
+	// video.DefaultQualities holds the default value on creation for the qualities field.
+	video.DefaultQualities = videoDescQualities.Default.([]string)
+	// videoDescUploadedAt is the schema descriptor for uploaded_at field.
+	videoDescUploadedAt := videoFields[6].Descriptor()
+	// video.DefaultUploadedAt holds the default value on creation for the uploaded_at field.
+	video.DefaultUploadedAt = videoDescUploadedAt.Default.(func() time.Time)
+	// videoDescID is the schema descriptor for id field.
+	videoDescID := videoFields[0].Descriptor()
+	// video.DefaultID holds the default value on creation for the id field.
+	video.DefaultID = videoDescID.Default.(func() uuid.UUID)
 }
