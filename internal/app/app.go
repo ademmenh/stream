@@ -20,6 +20,7 @@ import (
 	usersinfra "go-starter/internal/users/infrastructure"
 	userspresentation "go-starter/internal/users/presentation"
 	"go-starter/internal/videos"
+	videosapp "go-starter/internal/videos/application"
 	videosinfra "go-starter/internal/videos/infrastructure"
 	videospres "go-starter/internal/videos/presentation"
 )
@@ -92,13 +93,22 @@ func CreateApp(cfg config.IConfig) *echo.Echo {
 	})
 	usersModule.RegisterRoutes(v1.Group("/users"), cfg.JWTAccessTokenSecret())
 
+	videoRepo := videosinfra.NewVideoRepository(client)
+	videoStorage := videosinfra.NewVideoStorageAdapter(s3Adapter)
+	videoQueue := videosinfra.NewInMemoryQueueAdapter()
+
 	videosModule := videos.NewModule(videos.Dependencies{
-		VideoRepo:    videosinfra.NewVideoRepository(client),
-		Storage:      videosinfra.NewVideoStorageAdapter(s3Adapter),
-		MessageQueue: videosinfra.NewInMemoryQueueAdapter(),
+		VideoRepo:    videoRepo,
+		Storage:      videoStorage,
+		MessageQueue: videoQueue,
 		IDGenerator:  idGen,
 	})
 	videosModule.RegisterRoutes(v1, cfg.JWTAccessTokenSecret())
+
+	ffmpegAdapter := videosinfra.NewFfmpegAdapter()
+	processVideoUseCase := videosapp.NewProcessVideo(videoRepo, videoStorage, ffmpegAdapter)
+	consumer := videospres.NewConsumerQueueWorker(videoQueue, processVideoUseCase)
+	go consumer.Start(context.Background())
 
 	return e
 }

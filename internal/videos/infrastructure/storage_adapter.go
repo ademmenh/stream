@@ -41,3 +41,7 @@ func (a *VideoStorageAdapter) DeletePrefixes(ctx context.Context, prefixes []str
 	}
 	return nil
 }
+
+func (a *VideoStorageAdapter) UploadFile(ctx context.Context, key string, body []byte, contentType string) (string, error) {
+	return a.s3.UploadFile(ctx, key, body, contentType)
+}

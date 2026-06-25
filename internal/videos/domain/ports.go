@@ -28,14 +28,26 @@ type IStorageAdapter interface {
 	GeneratePresignedGetUrl(ctx context.Context, key string, expiry time.Duration) (string, error)
 	ObjectExists(ctx context.Context, key string) (bool, error)
 	DeletePrefixes(ctx context.Context, prefixes []string) error
+	UploadFile(ctx context.Context, key string, body []byte, contentType string) (string, error)
 }
 
 type IMessageQueue interface {
 	Enqueue(ctx context.Context, job VideoProcessingJob) error
+	Dequeue(ctx context.Context) (*VideoProcessingJob, error)
 }
 
 type VideoProcessingJob struct {
 	VideoID            string   `json:"video_id"`
 	RequestedQualities []string `json:"requested_qualities"`
 	IsAppend           bool     `json:"is_append"`
+}
+
+type TranscodeParams struct {
+	InputPath string
+	Quality   string
+	OutputDir string
+}
+
+type ITranscoder interface {
+	TranscodeToHLS(ctx context.Context, params TranscodeParams) error
 }
