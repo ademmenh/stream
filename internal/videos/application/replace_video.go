@@ -44,6 +44,9 @@ func (uc *ReplaceVideo) Execute(ctx context.Context, input ReplaceVideoInput) (*
 	if err := video.TransitionTo(domain.StatusReplacing); err != nil {
 		return nil, err
 	}
+	if err := video.TransitionTo(domain.StatusPendingUpload); err != nil {
+		return nil, err
+	}
 
 	_, err = uc.videoRepo.Update(ctx, video)
 	if err != nil {

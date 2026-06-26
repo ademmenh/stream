@@ -3,6 +3,9 @@ package infrastructure
 import (
 	"context"
 	"fmt"
+	"sort"
+	"strings"
+	"sync"
 
 	"github.com/google/uuid"
 
@@ -161,4 +164,123 @@ func stringsToQualities(s []string) []domain.VideoQuality {
 		res[i] = domain.VideoQuality(v)
 	}
 	return res
+}
+
+type InMemoryVideoRepository struct {
+	mu     sync.RWMutex
+	videos map[string]*domain.Video
+}
+
+func NewInMemoryVideoRepository() *InMemoryVideoRepository {
+	return &InMemoryVideoRepository{
+		videos: make(map[string]*domain.Video),
+	}
+}
+
+func (r *InMemoryVideoRepository) Create(ctx context.Context, v *domain.Video) (*domain.Video, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	clone := cloneVideo(v)
+	r.videos[clone.GetID()] = clone
+	return cloneVideo(clone), nil
+}
+
+func (r *InMemoryVideoRepository) FindByID(ctx context.Context, id string) (*domain.Video, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	v, ok := r.videos[id]
+	if !ok {
+		return nil, nil
+	}
+	return cloneVideo(v), nil
+}
+
+func (r *InMemoryVideoRepository) List(ctx context.Context, filter domain.VideoListFilter) ([]*domain.Video, int, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	var filtered []*domain.Video
+	for _, v := range r.videos {
+		if filter.Search != "" {
+			search := strings.ToLower(filter.Search)
+			if !strings.Contains(strings.ToLower(v.Title), search) &&
+				!strings.Contains(strings.ToLower(v.Description), search) {
+				continue
+			}
+		}
+		if filter.Type != nil && *filter.Type != v.Type {
+			continue
+		}
+		if filter.Status != nil && *filter.Status != v.Status {
+			continue
+		}
+		filtered = append(filtered, v)
+	}
+
+	if filter.SortBy == "title" {
+		sort.Slice(filtered, func(i, j int) bool {
+			return filtered[i].Title < filtered[j].Title
+		})
+	} else {
+		sort.Slice(filtered, func(i, j int) bool {
+			return filtered[i].UploadedAt.After(filtered[j].UploadedAt)
+		})
+	}
+
+	total := len(filtered)
+
+	offset := (filter.Page - 1) * filter.Limit
+	if offset > len(filtered) {
+		return []*domain.Video{}, total, nil
+	}
+	end := offset + filter.Limit
+	if end > len(filtered) {
+		end = len(filtered)
+	}
+
+	result := make([]*domain.Video, end-offset)
+	for i, v := range filtered[offset:end] {
+		result[i] = cloneVideo(v)
+	}
+	return result, total, nil
+}
+
+func (r *InMemoryVideoRepository) Update(ctx context.Context, v *domain.Video) (*domain.Video, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if _, ok := r.videos[v.GetID()]; !ok {
+		return nil, nil
+	}
+
+	clone := cloneVideo(v)
+	r.videos[clone.GetID()] = clone
+	return cloneVideo(clone), nil
+}
+
+func (r *InMemoryVideoRepository) Delete(ctx context.Context, id string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	delete(r.videos, id)
+	return nil
+}
+
+func cloneVideo(v *domain.Video) *domain.Video {
+	if v == nil {
+		return nil
+	}
+	qualities := make([]domain.VideoQuality, len(v.Qualities))
+	copy(qualities, v.Qualities)
+	return &domain.Video{
+		ID:          v.ID,
+		Title:       v.Title,
+		Description: v.Description,
+		Type:        v.Type,
+		Status:      v.Status,
+		Qualities:   qualities,
+		UploadedAt:  v.UploadedAt,
+	}
 }

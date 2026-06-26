@@ -25,11 +25,7 @@ func (a *VideoStorageAdapter) GeneratePresignedGetUrl(ctx context.Context, key s
 }
 
 func (a *VideoStorageAdapter) ObjectExists(ctx context.Context, key string) (bool, error) {
-	_, err := a.s3.GetSignedUrl(ctx, key)
-	if err != nil {
-		return false, nil
-	}
-	return true, nil
+	return a.s3.ObjectExists(ctx, key)
 }
 
 func (a *VideoStorageAdapter) DeletePrefixes(ctx context.Context, prefixes []string) error {
