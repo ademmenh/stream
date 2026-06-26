@@ -132,3 +132,30 @@ func (a *S3Adapter) DeleteFile(ctx context.Context, key string) error {
 	}
 	return nil
 }
+
+func (a *S3Adapter) ObjectExists(ctx context.Context, key string) (bool, error) {
+	_, err := a.client.StatObject(ctx, a.bucket, key, minio.StatObjectOptions{})
+	if err != nil {
+		e := minio.ToErrorResponse(err)
+		if e.StatusCode == 404 {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func (a *S3Adapter) RemoveBucket(ctx context.Context) error {
+	for obj := range a.client.ListObjects(ctx, a.bucket, minio.ListObjectsOptions{Recursive: true}) {
+		if obj.Err != nil {
+			return fmt.Errorf("list objects: %w", obj.Err)
+		}
+		a.client.RemoveObject(ctx, a.bucket, obj.Key, minio.RemoveObjectOptions{})
+	}
+
+	err := a.client.RemoveBucket(ctx, a.bucket)
+	if err != nil {
+		return fmt.Errorf("failed to remove bucket: %w", err)
+	}
+	return nil
+}

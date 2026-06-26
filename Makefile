@@ -117,9 +117,9 @@ ps:
 	docker compose -f docker-compose.dev.yml ps
 
 # ── Tests ──────────────────────────────────────────────────────────────────────
-TEST_FILTER = grep -v '^? ' | sed -E 's/(--- PASS:.*)/\x1b[32m\1\x1b[0m/g; s/(--- FAIL:.*)/\x1b[31m\1\x1b[0m/g; s/(--- SKIP:.*)/\x1b[33m\1\x1b[0m/g; s/^(ok .*)/\x1b[32m\1\x1b[0m/g; s/^(FAIL .*)/\x1b[31m\1\x1b[0m/g'
+TEST_FILTER = grep -v '^? ' | stdbuf -oL sed -E 's/(--- PASS:.*)/\x1b[32m\1\x1b[0m/g; s/(--- FAIL:.*)/\x1b[31m\1\x1b[0m/g; s/(--- SKIP:.*)/\x1b[33m\1\x1b[0m/g; s/^(ok .*)/\x1b[32m\1\x1b[0m/g; s/^(FAIL .*)/\x1b[31m\1\x1b[0m/g'
 
-# Run all tests (unit + integration + e2e)
+# Run all tests (unit + integration + e2e) — requires postgres + minio
 test:
 	@set -o pipefail; go test ./... -v -count=1 -p 1 2>&1 | $(TEST_FILTER)
 
@@ -127,10 +127,10 @@ test:
 test\:unit:
 	@set -o pipefail; go test ./... -v -count=1 -short 2>&1 | $(TEST_FILTER)
 
-# Run only integration tests (filtered by test function name)
+# Run only integration tests (requires postgres + minio)
 test\:integration:
 	@set -o pipefail; go test ./internal/... -v -run Integration -count=1 -p 1 2>&1 | $(TEST_FILTER)
 
-# Run only e2e tests (filtered by test function name)
+# Run only e2e tests (requires postgres + minio)
 test\:e2e:
 	@set -o pipefail; go test ./internal/... -v -run E2E -count=1 -p 1 2>&1 | $(TEST_FILTER)

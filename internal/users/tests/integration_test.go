@@ -3,10 +3,7 @@ package userstests
 import (
 	"context"
 	"flag"
-	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,6 +13,7 @@ import (
 
 	shareddomain "go-starter/internal/shared/domain"
 	"go-starter/internal/shared/infrastructure/ent/generated"
+	sharedtests "go-starter/internal/shared/tests"
 	usersapp "go-starter/internal/users/application"
 	usersdomain "go-starter/internal/users/domain"
 	"go-starter/internal/users/infrastructure"
@@ -24,51 +22,7 @@ import (
 var globalClient *generated.Client
 
 func init() {
-	loadDotEnv()
-}
-
-func loadDotEnv() {
-	dir, err := os.Getwd()
-	if err != nil {
-		return
-	}
-	for {
-		envPath := filepath.Join(dir, ".env.test")
-		data, err := os.ReadFile(envPath)
-		if err == nil {
-			for _, line := range strings.Split(string(data), "\n") {
-				line = strings.TrimSpace(line)
-				if line == "" || strings.HasPrefix(line, "#") {
-					continue
-				}
-				parts := strings.SplitN(line, "=", 2)
-				if len(parts) == 2 {
-					os.Setenv(strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
-				}
-			}
-			return
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			return
-		}
-		dir = parent
-	}
-}
-
-func buildDSN() string {
-	host := os.Getenv("DB_HOST")
-	if host == "db" || host == "" {
-		host = "localhost"
-	}
-	sslmode := os.Getenv("DB_SSLMODE")
-	if sslmode == "" {
-		sslmode = "disable"
-	}
-	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		host, os.Getenv("DB_PORT"),
-		os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"), sslmode)
+	sharedtests.LoadDotEnv()
 }
 
 func TestMain(m *testing.M) {
@@ -77,7 +31,7 @@ func TestMain(m *testing.M) {
 		os.Exit(m.Run())
 	}
 
-	dsn := buildDSN()
+	dsn := sharedtests.BuildDSN()
 	client, err := generated.Open("postgres", dsn)
 	if err == nil {
 		defer client.Close()
