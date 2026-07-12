@@ -99,6 +99,9 @@ func (c *ConfigAdapter) S3Region() string   { return envOrDefault("S3_REGION", "
 func (c *ConfigAdapter) S3AccessKey() string { return envOrDefault("S3_ACCESS_KEY", "minioadmin") }
 func (c *ConfigAdapter) S3SecretKey() string { return envOrDefault("S3_SECRET_KEY", "minioadmin") }
 func (c *ConfigAdapter) S3Bucket() string    { return envOrDefault("S3_BUCKET", "starter") }
+func (c *ConfigAdapter) S3PrivatePathPrefix() string {
+	return envOrDefault("S3_PRIVATE_PATH_PREFIX", "")
+}
 func (c *ConfigAdapter) S3PublicEndpoint() string {
 	return envOrDefault("S3_PUBLIC_ENDPOINT", "http://s3:9000")
 }

@@ -39,6 +39,7 @@ type IConfig interface {
 	S3AccessKey() string
 	S3SecretKey() string
 	S3Bucket() string
+	S3PrivatePathPrefix() string
 	S3PublicEndpoint() string
 
 	AdminEmail() string
