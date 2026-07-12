@@ -37,7 +37,7 @@ func CreateApp(cfg config.IConfig) *echo.Echo {
 		AllowOrigins:     cfg.CORSOrigins(),
 		AllowCredentials: cfg.CORSCredentials(),
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions},
-		AllowHeaders:     []string{"*"},
+		AllowHeaders:     []string{"Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"},
 	}))
 
 	presentation.AuthErrorHandler = authpresentation.AuthErrorHandler
@@ -66,6 +66,8 @@ func CreateApp(cfg config.IConfig) *echo.Echo {
 	passwordAdapter := authinfra.NewPasswordAdapter()
 	userRepo := usersinfra.NewUserRepository(client)
 	idGen := usersinfra.NewIDGenerator()
+
+	sharedinfra.SeedAdmin(context.Background(), userRepo, passwordAdapter, cfg.AdminEmail(), cfg.AdminPassword())
 
 	apiPrefix := fmt.Sprintf("/api/v%s", cfg.APIVersion())
 	v1 := e.Group(apiPrefix)

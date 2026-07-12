@@ -29,6 +29,15 @@ func UserErrorHandler(err error) *echo.HTTPError {
 		})
 	}
 
+	var cantBanAdmin *usersdomain.CannotBanAdminError
+	if errors.As(err, &cantBanAdmin) {
+		return echo.NewHTTPError(http.StatusForbidden, sharedpres.ErrorResponse{
+			Message:    "Forbidden",
+			StatusCode: 403,
+			Error:      cantBanAdmin.Error(),
+		})
+	}
+
 	return echo.NewHTTPError(http.StatusInternalServerError, sharedpres.ErrorResponse{
 		Message:    "Internal Server Error",
 		StatusCode: 500,

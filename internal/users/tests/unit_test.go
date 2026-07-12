@@ -185,3 +185,17 @@ func TestUnbanUser_Success(t *testing.T) {
 	require.NoError(t, err)
 	assert.False(t, result.Banned)
 }
+
+func TestBanUser_CannotBanAdmin(t *testing.T) {
+	repo := infrastructure.NewInMemoryUserRepository()
+	admin := newTestUser("admin1", "Admin", "admin@test.com")
+	admin.Role = "admin"
+	seedUser(t, repo, admin)
+
+	uc := usersapp.NewBanUser(repo)
+	_, err := uc.Execute(context.Background(), "admin1")
+
+	assert.Error(t, err)
+	var cantBanErr *usersdomain.CannotBanAdminError
+	assert.ErrorAs(t, err, &cantBanErr)
+}

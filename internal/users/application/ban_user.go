@@ -15,12 +15,21 @@ func NewBanUser(userRepo domain.IUserRepository) *BanUser {
 }
 
 func (uc *BanUser) Execute(ctx context.Context, id string) (*UserOutput, error) {
-	user, err := uc.userRepo.Ban(ctx, id)
+	target, err := uc.userRepo.FindByID(ctx, id)
+	if err != nil || target == nil {
+		return nil, &domain.UserNotFoundError{ID: id}
+	}
+
+	if target.IsAdmin() {
+		return nil, &domain.CannotBanAdminError{}
+	}
+
+	bannedUser, err := uc.userRepo.Ban(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	if user == nil {
+	if bannedUser == nil {
 		return nil, &domain.UserNotFoundError{ID: id}
 	}
-	return userToOutput(user), nil
+	return userToOutput(bannedUser), nil
 }

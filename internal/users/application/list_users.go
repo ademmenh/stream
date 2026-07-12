@@ -10,6 +10,7 @@ type ListUsersInput struct {
 	Search string
 	Page   int
 	Limit  int
+	Role   string
 }
 
 type ListUsersOutput struct {
@@ -32,6 +33,7 @@ func (uc *ListUsers) Execute(ctx context.Context, input ListUsersInput) (*ListUs
 		Search: input.Search,
 		Page:   input.Page,
 		Limit:  input.Limit,
+		Role:   input.Role,
 	}
 
 	users, total, err := uc.userRepo.List(ctx, filter)

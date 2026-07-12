@@ -14,4 +14,5 @@ type ListUsersQuery struct {
 	Search string `query:"search"`
 	Page   int    `query:"page"`
 	Limit  int    `query:"limit"`
+	Role   string `query:"role"`
 }

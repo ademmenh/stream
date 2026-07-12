@@ -81,6 +81,9 @@ func (r *UserRepository) List(ctx context.Context, filter domain.UserListFilter)
 			),
 		)
 	}
+	if filter.Role != "" {
+		query = query.Where(userschema.RoleEQ(filter.Role))
+	}
 
 	total, err := query.Count(ctx)
 	if err != nil {
@@ -230,6 +233,9 @@ func (r *InMemoryUserRepository) List(ctx context.Context, filter domain.UserLis
 				!strings.Contains(strings.ToLower(u.Email.String()), search) {
 				continue
 			}
+		}
+		if filter.Role != "" && u.Role != filter.Role {
+			continue
 		}
 		filtered = append(filtered, u)
 	}

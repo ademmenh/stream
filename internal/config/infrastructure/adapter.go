@@ -102,3 +102,11 @@ func (c *ConfigAdapter) S3Bucket() string    { return envOrDefault("S3_BUCKET", 
 func (c *ConfigAdapter) S3PublicEndpoint() string {
 	return envOrDefault("S3_PUBLIC_ENDPOINT", "http://s3:9000")
 }
+
+func (c *ConfigAdapter) AdminEmail() string {
+	return envOrDefault("ADMIN_EMAIL", "admin@gmail.com")
+}
+
+func (c *ConfigAdapter) AdminPassword() string {
+	return envOrDefault("ADMIN_PASSWORD", "admin123")
+}

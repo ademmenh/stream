@@ -33,6 +33,10 @@ func (r *RefreshToken) Execute(ctx context.Context, input RefreshTokenInput) (*T
 		return nil, &domain.RefreshTokenInvalidError{}
 	}
 
+	if user.GetBanned() {
+		return nil, &domain.UserBannedError{}
+	}
+
 	newPayload := TokenPayload{
 		Sub:   user.GetID(),
 		Email: user.GetEmail(),

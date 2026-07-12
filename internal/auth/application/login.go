@@ -75,6 +75,10 @@ func (l *Login) Execute(ctx context.Context, input LoginInput) (*LoginOutput, er
 		return nil, &domain.InvalidCredentialsError{}
 	}
 
+	if user.GetBanned() {
+		return nil, &domain.UserBannedError{}
+	}
+
 	payload := TokenPayload{
 		Sub:   user.GetID(),
 		Email: user.GetEmail(),
