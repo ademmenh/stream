@@ -20,3 +20,8 @@ type UserNotFoundError struct {
 
 func (e *UserNotFoundError) Error() string { return "User not found: " + e.ID }
 func (e *UserNotFoundError) isUserError()  {}
+
+type CannotBanAdminError struct{}
+
+func (e *CannotBanAdminError) Error() string { return "Cannot ban an admin user" }
+func (e *CannotBanAdminError) isUserError()  {}

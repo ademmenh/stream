@@ -14,3 +14,8 @@ type RefreshTokenInvalidError struct{}
 
 func (e *RefreshTokenInvalidError) Error() string { return "Invalid or expired refresh token" }
 func (e *RefreshTokenInvalidError) isAuthError()  {}
+
+type UserBannedError struct{}
+
+func (e *UserBannedError) Error() string { return "User is banned" }
+func (e *UserBannedError) isAuthError()  {}

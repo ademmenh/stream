@@ -121,6 +121,7 @@ func (h *UsersHandlers) ListUsers(c echo.Context) error {
 		Search: query.Search,
 		Page:   query.Page,
 		Limit:  query.Limit,
+		Role:   query.Role,
 	})
 	if err != nil {
 		return err

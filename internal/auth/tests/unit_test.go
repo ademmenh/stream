@@ -181,3 +181,34 @@ func TestRefreshToken_InvalidToken(t *testing.T) {
 	var refreshErr *authdomain.RefreshTokenInvalidError
 	assert.ErrorAs(t, err, &refreshErr)
 }
+
+func TestLogin_BannedUser(t *testing.T) {
+	repo := infrastructure.NewInMemoryUserRepository()
+	seedAuthUser(t, repo, "u1", "Alice", "alice@test.com", "password123")
+	repo.Ban(context.Background(), "u1")
+
+	uc := authapp.NewLogin(repo, &mockPasswordAdapter{}, &mockJwtAdapter{})
+	_, err := uc.Execute(context.Background(), authapp.LoginInput{
+		Email:    "alice@test.com",
+		Password: "password123",
+	})
+
+	assert.Error(t, err)
+	var bannedErr *authdomain.UserBannedError
+	assert.ErrorAs(t, err, &bannedErr)
+}
+
+func TestRefreshToken_BannedUser(t *testing.T) {
+	repo := infrastructure.NewInMemoryUserRepository()
+	seedAuthUser(t, repo, "test-id", "Alice", "test@test.com", "password123")
+	repo.Ban(context.Background(), "test-id")
+
+	uc := authapp.NewRefreshToken(repo, &mockJwtAdapter{})
+	_, err := uc.Execute(context.Background(), authapp.RefreshTokenInput{
+		RefreshToken: "valid-refresh-token",
+	})
+
+	assert.Error(t, err)
+	var bannedErr *authdomain.UserBannedError
+	assert.ErrorAs(t, err, &bannedErr)
+}
