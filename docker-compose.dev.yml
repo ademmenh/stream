@@ -105,6 +105,8 @@ services:
         environment:
             API_HOST: app
             API_PORT: ${PORT:-8000}
+            S3_HOST: s3
+            S3_PORT: ${S3_PORT:-9000}
         volumes:
             - ./nginx/templates/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
         ports:
@@ -113,6 +115,8 @@ services:
             - net
         depends_on:
             app:
+                condition: service_healthy
+            s3:
                 condition: service_healthy
 
 volumes:

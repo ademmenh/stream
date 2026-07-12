@@ -92,6 +92,8 @@ services:
     environment:
       API_HOST:   app
       API_PORT:   ${PORT:-8000}
+      S3_HOST:    s3
+      S3_PORT:    ${S3_PORT:-9000}
     networks:
       - net
     volumes:
@@ -100,6 +102,8 @@ services:
       - "80:80"
     depends_on:
       app:
+        condition: service_healthy
+      s3:
         condition: service_healthy
 
 volumes:

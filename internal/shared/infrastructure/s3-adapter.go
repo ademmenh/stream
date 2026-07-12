@@ -15,12 +15,14 @@ import (
 )
 
 type S3Adapter struct {
-	client           *minio.Client
-	clientExternal   *minio.Client
-	bucket           string
-	presignedExpiry  time.Duration
-	publicEndpoint   string
-	publicPathPrefix string
+	client            *minio.Client
+	clientExternal    *minio.Client
+	bucket            string
+	presignedExpiry   time.Duration
+	privateEndpoint   string
+	privatePathPrefix string
+	publicEndpoint    string
+	publicPathPrefix  string
 }
 
 func NewS3Adapter(cfg config.IConfig) (*S3Adapter, error) {
@@ -41,21 +43,29 @@ func NewS3Adapter(cfg config.IConfig) (*S3Adapter, error) {
 	publicEndpoint := fmt.Sprintf("%s://%s", parsedURL.Scheme, parsedURL.Host)
 	publicPathPrefix := strings.TrimRight(parsedURL.Path, "/")
 
+	// clientExternal is only used for presigned URL generation.
+	// It must use the public endpoint host so the signature matches
+	// the host that external clients will connect to.
+	// Setting Region explicitly skips the GetBucketLocation network call,
+	// so this client never needs to reach the endpoint from inside Docker.
 	clientExternal, err := minio.New(parsedURL.Host, &minio.Options{
 		Creds:  credentials.NewStaticV4(cfg.S3AccessKey(), cfg.S3SecretKey(), ""),
 		Secure: parsedURL.Scheme == "https",
+		Region: cfg.S3Region(),
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	return &S3Adapter{
-		client:           client,
-		clientExternal:   clientExternal,
-		bucket:           cfg.S3Bucket(),
-		presignedExpiry: 7 * 24 * time.Hour,
-		publicEndpoint:   publicEndpoint,
-		publicPathPrefix: publicPathPrefix,
+		client:            client,
+		clientExternal:    clientExternal,
+		bucket:            cfg.S3Bucket(),
+		presignedExpiry:   7 * 24 * time.Hour,
+		privateEndpoint:   endpoint,
+		privatePathPrefix: cfg.S3PrivatePathPrefix(),
+		publicEndpoint:    publicEndpoint,
+		publicPathPrefix:  publicPathPrefix,
 	}, nil
 }
 
@@ -100,17 +110,13 @@ func (a *S3Adapter) UploadFile(ctx context.Context, key string, body []byte, con
 	return key, nil
 }
 
-func (a *S3Adapter) injectPrefix(rawURL string) string {
-	return strings.Replace(rawURL, a.publicEndpoint, a.publicEndpoint+a.publicPathPrefix, 1)
-}
-
 func (a *S3Adapter) GetSignedUrl(ctx context.Context, key string) (string, error) {
 	reqParams := make(url.Values)
 	presignedURL, err := a.clientExternal.PresignedGetObject(ctx, a.bucket, key, a.presignedExpiry, reqParams)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate signed URL: %w", err)
 	}
-	return a.injectPrefix(presignedURL.String()), nil
+	return a.injectPathPrefix(presignedURL), nil
 }
 
 func (a *S3Adapter) GetSignedUploadUrl(ctx context.Context, key string, contentType string) (string, error) {
@@ -118,7 +124,15 @@ func (a *S3Adapter) GetSignedUploadUrl(ctx context.Context, key string, contentT
 	if err != nil {
 		return "", fmt.Errorf("failed to generate signed upload URL: %w", err)
 	}
-	return a.injectPrefix(presignedURL.String()), nil
+	return a.injectPathPrefix(presignedURL), nil
+}
+
+func (a *S3Adapter) injectPathPrefix(u *url.URL) string {
+	if a.publicPathPrefix == "" {
+		return u.String()
+	}
+	u.Path = a.publicPathPrefix + u.Path
+	return u.String()
 }
 
 func (a *S3Adapter) GetPublicUrl(key string) string {
