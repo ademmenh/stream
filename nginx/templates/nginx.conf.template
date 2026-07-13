@@ -15,7 +15,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    location /images/ {
+    location /s3/ {
         client_max_body_size 0;
         proxy_pass http://${S3_HOST}:${S3_PORT}/;
         proxy_set_header Host $host;

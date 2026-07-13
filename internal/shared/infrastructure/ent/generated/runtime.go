@@ -129,8 +129,20 @@ func init() {
 	videoDescQualities := videoFields[5].Descriptor()
 	// video.DefaultQualities holds the default value on creation for the qualities field.
 	video.DefaultQualities = videoDescQualities.Default.([]string)
+	// videoDescRawPath is the schema descriptor for raw_path field.
+	videoDescRawPath := videoFields[6].Descriptor()
+	// video.DefaultRawPath holds the default value on creation for the raw_path field.
+	video.DefaultRawPath = videoDescRawPath.Default.(string)
+	// video.RawPathValidator is a validator for the "raw_path" field. It is called by the builders before save.
+	video.RawPathValidator = videoDescRawPath.Validators[0].(func(string) error)
+	// videoDescPhotoPath is the schema descriptor for photo_path field.
+	videoDescPhotoPath := videoFields[7].Descriptor()
+	// video.DefaultPhotoPath holds the default value on creation for the photo_path field.
+	video.DefaultPhotoPath = videoDescPhotoPath.Default.(string)
+	// video.PhotoPathValidator is a validator for the "photo_path" field. It is called by the builders before save.
+	video.PhotoPathValidator = videoDescPhotoPath.Validators[0].(func(string) error)
 	// videoDescUploadedAt is the schema descriptor for uploaded_at field.
-	videoDescUploadedAt := videoFields[6].Descriptor()
+	videoDescUploadedAt := videoFields[8].Descriptor()
 	// video.DefaultUploadedAt holds the default value on creation for the uploaded_at field.
 	video.DefaultUploadedAt = videoDescUploadedAt.Default.(func() time.Time)
 	// videoDescID is the schema descriptor for id field.

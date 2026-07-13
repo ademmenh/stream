@@ -26,6 +26,7 @@ type VideoListFilter struct {
 type IStorageAdapter interface {
 	GeneratePresignedUploadUrl(ctx context.Context, key string, expiry time.Duration) (string, error)
 	GeneratePresignedGetUrl(ctx context.Context, key string, expiry time.Duration) (string, error)
+	DownloadFile(ctx context.Context, key string) ([]byte, error)
 	ObjectExists(ctx context.Context, key string) (bool, error)
 	DeletePrefixes(ctx context.Context, prefixes []string) error
 	UploadFile(ctx context.Context, key string, body []byte, contentType string) (string, error)

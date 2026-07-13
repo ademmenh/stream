@@ -73,10 +73,13 @@ type Video struct {
 	Type        VideoType
 	Status      VideoStatus
 	Qualities   []VideoQuality
+	RawPath     string
+	PhotoPath   string
 	UploadedAt  time.Time
 }
 
 func NewVideo(id shareddomain.Id, title, description string, videoType VideoType) *Video {
+	idStr := id.String()
 	return &Video{
 		ID:          id,
 		Title:       title,
@@ -84,6 +87,8 @@ func NewVideo(id shareddomain.Id, title, description string, videoType VideoType
 		Type:        videoType,
 		Status:      StatusPendingUpload,
 		Qualities:   []VideoQuality{},
+		RawPath:     "raws/" + idStr + ".mp4",
+		PhotoPath:   "photos/" + idStr + "/thumbnail.jpg",
 		UploadedAt:  time.Now().UTC(),
 	}
 }
@@ -94,6 +99,8 @@ func (v *Video) GetDescription() string       { return v.Description }
 func (v *Video) GetType() VideoType           { return v.Type }
 func (v *Video) GetStatus() VideoStatus       { return v.Status }
 func (v *Video) GetQualities() []VideoQuality { return v.Qualities }
+func (v *Video) GetRawPath() string           { return v.RawPath }
+func (v *Video) GetPhotoPath() string         { return v.PhotoPath }
 func (v *Video) GetUploadedAt() time.Time     { return v.UploadedAt }
 
 func (v *Video) TransitionTo(target VideoStatus) error {

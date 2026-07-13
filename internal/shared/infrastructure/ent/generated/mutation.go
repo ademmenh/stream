@@ -774,6 +774,8 @@ type VideoMutation struct {
 	status          *video.Status
 	qualities       *[]string
 	appendqualities []string
+	raw_path        *string
+	photo_path      *string
 	uploaded_at     *time.Time
 	clearedFields   map[string]struct{}
 	done            bool
@@ -1080,6 +1082,78 @@ func (m *VideoMutation) ResetQualities() {
 	m.appendqualities = nil
 }
 
+// SetRawPath sets the "raw_path" field.
+func (m *VideoMutation) SetRawPath(s string) {
+	m.raw_path = &s
+}
+
+// RawPath returns the value of the "raw_path" field in the mutation.
+func (m *VideoMutation) RawPath() (r string, exists bool) {
+	v := m.raw_path
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawPath returns the old "raw_path" field's value of the Video entity.
+// If the Video object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VideoMutation) OldRawPath(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawPath is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawPath requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawPath: %w", err)
+	}
+	return oldValue.RawPath, nil
+}
+
+// ResetRawPath resets all changes to the "raw_path" field.
+func (m *VideoMutation) ResetRawPath() {
+	m.raw_path = nil
+}
+
+// SetPhotoPath sets the "photo_path" field.
+func (m *VideoMutation) SetPhotoPath(s string) {
+	m.photo_path = &s
+}
+
+// PhotoPath returns the value of the "photo_path" field in the mutation.
+func (m *VideoMutation) PhotoPath() (r string, exists bool) {
+	v := m.photo_path
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPhotoPath returns the old "photo_path" field's value of the Video entity.
+// If the Video object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VideoMutation) OldPhotoPath(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPhotoPath is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPhotoPath requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPhotoPath: %w", err)
+	}
+	return oldValue.PhotoPath, nil
+}
+
+// ResetPhotoPath resets all changes to the "photo_path" field.
+func (m *VideoMutation) ResetPhotoPath() {
+	m.photo_path = nil
+}
+
 // SetUploadedAt sets the "uploaded_at" field.
 func (m *VideoMutation) SetUploadedAt(t time.Time) {
 	m.uploaded_at = &t
@@ -1150,7 +1224,7 @@ func (m *VideoMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *VideoMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 8)
 	if m.title != nil {
 		fields = append(fields, video.FieldTitle)
 	}
@@ -1165,6 +1239,12 @@ func (m *VideoMutation) Fields() []string {
 	}
 	if m.qualities != nil {
 		fields = append(fields, video.FieldQualities)
+	}
+	if m.raw_path != nil {
+		fields = append(fields, video.FieldRawPath)
+	}
+	if m.photo_path != nil {
+		fields = append(fields, video.FieldPhotoPath)
 	}
 	if m.uploaded_at != nil {
 		fields = append(fields, video.FieldUploadedAt)
@@ -1187,6 +1267,10 @@ func (m *VideoMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case video.FieldQualities:
 		return m.Qualities()
+	case video.FieldRawPath:
+		return m.RawPath()
+	case video.FieldPhotoPath:
+		return m.PhotoPath()
 	case video.FieldUploadedAt:
 		return m.UploadedAt()
 	}
@@ -1208,6 +1292,10 @@ func (m *VideoMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldStatus(ctx)
 	case video.FieldQualities:
 		return m.OldQualities(ctx)
+	case video.FieldRawPath:
+		return m.OldRawPath(ctx)
+	case video.FieldPhotoPath:
+		return m.OldPhotoPath(ctx)
 	case video.FieldUploadedAt:
 		return m.OldUploadedAt(ctx)
 	}
@@ -1253,6 +1341,20 @@ func (m *VideoMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetQualities(v)
+		return nil
+	case video.FieldRawPath:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawPath(v)
+		return nil
+	case video.FieldPhotoPath:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPhotoPath(v)
 		return nil
 	case video.FieldUploadedAt:
 		v, ok := value.(time.Time)
@@ -1324,6 +1426,12 @@ func (m *VideoMutation) ResetField(name string) error {
 		return nil
 	case video.FieldQualities:
 		m.ResetQualities()
+		return nil
+	case video.FieldRawPath:
+		m.ResetRawPath()
+		return nil
+	case video.FieldPhotoPath:
+		m.ResetPhotoPath()
 		return nil
 	case video.FieldUploadedAt:
 		m.ResetUploadedAt()

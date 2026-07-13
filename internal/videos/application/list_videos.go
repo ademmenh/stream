@@ -78,8 +78,7 @@ func (uc *ListVideos) Execute(ctx context.Context, input ListVideosInput) (*List
 
 	output := make([]VideoOutput, len(videos))
 	for i, v := range videos {
-		thumbnailKey := "photos/" + v.GetID() + "/thumbnail.jpg"
-		thumbnailUrl, _ := uc.storage.GeneratePresignedGetUrl(ctx, thumbnailKey, 1*time.Hour)
+		thumbnailUrl, _ := uc.storage.GeneratePresignedGetUrl(ctx, v.GetPhotoPath(), 1*time.Hour)
 
 		output[i] = VideoOutput{
 			ID:           v.GetID(),

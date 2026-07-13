@@ -25,6 +25,10 @@ const (
 	FieldStatus = "status"
 	// FieldQualities holds the string denoting the qualities field in the database.
 	FieldQualities = "qualities"
+	// FieldRawPath holds the string denoting the raw_path field in the database.
+	FieldRawPath = "raw_path"
+	// FieldPhotoPath holds the string denoting the photo_path field in the database.
+	FieldPhotoPath = "photo_path"
 	// FieldUploadedAt holds the string denoting the uploaded_at field in the database.
 	FieldUploadedAt = "uploaded_at"
 	// Table holds the table name of the video in the database.
@@ -39,6 +43,8 @@ var Columns = []string{
 	FieldType,
 	FieldStatus,
 	FieldQualities,
+	FieldRawPath,
+	FieldPhotoPath,
 	FieldUploadedAt,
 }
 
@@ -61,6 +67,14 @@ var (
 	DescriptionValidator func(string) error
 	// DefaultQualities holds the default value on creation for the "qualities" field.
 	DefaultQualities []string
+	// DefaultRawPath holds the default value on creation for the "raw_path" field.
+	DefaultRawPath string
+	// RawPathValidator is a validator for the "raw_path" field. It is called by the builders before save.
+	RawPathValidator func(string) error
+	// DefaultPhotoPath holds the default value on creation for the "photo_path" field.
+	DefaultPhotoPath string
+	// PhotoPathValidator is a validator for the "photo_path" field. It is called by the builders before save.
+	PhotoPathValidator func(string) error
 	// DefaultUploadedAt holds the default value on creation for the "uploaded_at" field.
 	DefaultUploadedAt func() time.Time
 	// DefaultID holds the default value on creation for the "id" field.
@@ -146,6 +160,16 @@ func ByType(opts ...sql.OrderTermOption) OrderOption {
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByRawPath orders the results by the raw_path field.
+func ByRawPath(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRawPath, opts...).ToFunc()
+}
+
+// ByPhotoPath orders the results by the photo_path field.
+func ByPhotoPath(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPhotoPath, opts...).ToFunc()
 }
 
 // ByUploadedAt orders the results by the uploaded_at field.

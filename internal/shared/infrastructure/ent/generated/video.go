@@ -29,6 +29,10 @@ type Video struct {
 	Status video.Status `json:"status,omitempty"`
 	// Qualities holds the value of the "qualities" field.
 	Qualities []string `json:"qualities,omitempty"`
+	// RawPath holds the value of the "raw_path" field.
+	RawPath string `json:"raw_path,omitempty"`
+	// PhotoPath holds the value of the "photo_path" field.
+	PhotoPath string `json:"photo_path,omitempty"`
 	// UploadedAt holds the value of the "uploaded_at" field.
 	UploadedAt   time.Time `json:"uploaded_at,omitempty"`
 	selectValues sql.SelectValues
@@ -41,7 +45,7 @@ func (*Video) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case video.FieldQualities:
 			values[i] = new([]byte)
-		case video.FieldTitle, video.FieldDescription, video.FieldType, video.FieldStatus:
+		case video.FieldTitle, video.FieldDescription, video.FieldType, video.FieldStatus, video.FieldRawPath, video.FieldPhotoPath:
 			values[i] = new(sql.NullString)
 		case video.FieldUploadedAt:
 			values[i] = new(sql.NullTime)
@@ -100,6 +104,18 @@ func (_m *Video) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field qualities: %w", err)
 				}
 			}
+		case video.FieldRawPath:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field raw_path", values[i])
+			} else if value.Valid {
+				_m.RawPath = value.String
+			}
+		case video.FieldPhotoPath:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field photo_path", values[i])
+			} else if value.Valid {
+				_m.PhotoPath = value.String
+			}
 		case video.FieldUploadedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field uploaded_at", values[i])
@@ -156,6 +172,12 @@ func (_m *Video) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("qualities=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Qualities))
+	builder.WriteString(", ")
+	builder.WriteString("raw_path=")
+	builder.WriteString(_m.RawPath)
+	builder.WriteString(", ")
+	builder.WriteString("photo_path=")
+	builder.WriteString(_m.PhotoPath)
 	builder.WriteString(", ")
 	builder.WriteString("uploaded_at=")
 	builder.WriteString(_m.UploadedAt.Format(time.ANSIC))

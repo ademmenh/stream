@@ -65,6 +65,16 @@ func Description(v string) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldDescription, v))
 }
 
+// RawPath applies equality check predicate on the "raw_path" field. It's identical to RawPathEQ.
+func RawPath(v string) predicate.Video {
+	return predicate.Video(sql.FieldEQ(FieldRawPath, v))
+}
+
+// PhotoPath applies equality check predicate on the "photo_path" field. It's identical to PhotoPathEQ.
+func PhotoPath(v string) predicate.Video {
+	return predicate.Video(sql.FieldEQ(FieldPhotoPath, v))
+}
+
 // UploadedAt applies equality check predicate on the "uploaded_at" field. It's identical to UploadedAtEQ.
 func UploadedAt(v time.Time) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldUploadedAt, v))
@@ -238,6 +248,136 @@ func StatusIn(vs ...Status) predicate.Video {
 // StatusNotIn applies the NotIn predicate on the "status" field.
 func StatusNotIn(vs ...Status) predicate.Video {
 	return predicate.Video(sql.FieldNotIn(FieldStatus, vs...))
+}
+
+// RawPathEQ applies the EQ predicate on the "raw_path" field.
+func RawPathEQ(v string) predicate.Video {
+	return predicate.Video(sql.FieldEQ(FieldRawPath, v))
+}
+
+// RawPathNEQ applies the NEQ predicate on the "raw_path" field.
+func RawPathNEQ(v string) predicate.Video {
+	return predicate.Video(sql.FieldNEQ(FieldRawPath, v))
+}
+
+// RawPathIn applies the In predicate on the "raw_path" field.
+func RawPathIn(vs ...string) predicate.Video {
+	return predicate.Video(sql.FieldIn(FieldRawPath, vs...))
+}
+
+// RawPathNotIn applies the NotIn predicate on the "raw_path" field.
+func RawPathNotIn(vs ...string) predicate.Video {
+	return predicate.Video(sql.FieldNotIn(FieldRawPath, vs...))
+}
+
+// RawPathGT applies the GT predicate on the "raw_path" field.
+func RawPathGT(v string) predicate.Video {
+	return predicate.Video(sql.FieldGT(FieldRawPath, v))
+}
+
+// RawPathGTE applies the GTE predicate on the "raw_path" field.
+func RawPathGTE(v string) predicate.Video {
+	return predicate.Video(sql.FieldGTE(FieldRawPath, v))
+}
+
+// RawPathLT applies the LT predicate on the "raw_path" field.
+func RawPathLT(v string) predicate.Video {
+	return predicate.Video(sql.FieldLT(FieldRawPath, v))
+}
+
+// RawPathLTE applies the LTE predicate on the "raw_path" field.
+func RawPathLTE(v string) predicate.Video {
+	return predicate.Video(sql.FieldLTE(FieldRawPath, v))
+}
+
+// RawPathContains applies the Contains predicate on the "raw_path" field.
+func RawPathContains(v string) predicate.Video {
+	return predicate.Video(sql.FieldContains(FieldRawPath, v))
+}
+
+// RawPathHasPrefix applies the HasPrefix predicate on the "raw_path" field.
+func RawPathHasPrefix(v string) predicate.Video {
+	return predicate.Video(sql.FieldHasPrefix(FieldRawPath, v))
+}
+
+// RawPathHasSuffix applies the HasSuffix predicate on the "raw_path" field.
+func RawPathHasSuffix(v string) predicate.Video {
+	return predicate.Video(sql.FieldHasSuffix(FieldRawPath, v))
+}
+
+// RawPathEqualFold applies the EqualFold predicate on the "raw_path" field.
+func RawPathEqualFold(v string) predicate.Video {
+	return predicate.Video(sql.FieldEqualFold(FieldRawPath, v))
+}
+
+// RawPathContainsFold applies the ContainsFold predicate on the "raw_path" field.
+func RawPathContainsFold(v string) predicate.Video {
+	return predicate.Video(sql.FieldContainsFold(FieldRawPath, v))
+}
+
+// PhotoPathEQ applies the EQ predicate on the "photo_path" field.
+func PhotoPathEQ(v string) predicate.Video {
+	return predicate.Video(sql.FieldEQ(FieldPhotoPath, v))
+}
+
+// PhotoPathNEQ applies the NEQ predicate on the "photo_path" field.
+func PhotoPathNEQ(v string) predicate.Video {
+	return predicate.Video(sql.FieldNEQ(FieldPhotoPath, v))
+}
+
+// PhotoPathIn applies the In predicate on the "photo_path" field.
+func PhotoPathIn(vs ...string) predicate.Video {
+	return predicate.Video(sql.FieldIn(FieldPhotoPath, vs...))
+}
+
+// PhotoPathNotIn applies the NotIn predicate on the "photo_path" field.
+func PhotoPathNotIn(vs ...string) predicate.Video {
+	return predicate.Video(sql.FieldNotIn(FieldPhotoPath, vs...))
+}
+
+// PhotoPathGT applies the GT predicate on the "photo_path" field.
+func PhotoPathGT(v string) predicate.Video {
+	return predicate.Video(sql.FieldGT(FieldPhotoPath, v))
+}
+
+// PhotoPathGTE applies the GTE predicate on the "photo_path" field.
+func PhotoPathGTE(v string) predicate.Video {
+	return predicate.Video(sql.FieldGTE(FieldPhotoPath, v))
+}
+
+// PhotoPathLT applies the LT predicate on the "photo_path" field.
+func PhotoPathLT(v string) predicate.Video {
+	return predicate.Video(sql.FieldLT(FieldPhotoPath, v))
+}
+
+// PhotoPathLTE applies the LTE predicate on the "photo_path" field.
+func PhotoPathLTE(v string) predicate.Video {
+	return predicate.Video(sql.FieldLTE(FieldPhotoPath, v))
+}
+
+// PhotoPathContains applies the Contains predicate on the "photo_path" field.
+func PhotoPathContains(v string) predicate.Video {
+	return predicate.Video(sql.FieldContains(FieldPhotoPath, v))
+}
+
+// PhotoPathHasPrefix applies the HasPrefix predicate on the "photo_path" field.
+func PhotoPathHasPrefix(v string) predicate.Video {
+	return predicate.Video(sql.FieldHasPrefix(FieldPhotoPath, v))
+}
+
+// PhotoPathHasSuffix applies the HasSuffix predicate on the "photo_path" field.
+func PhotoPathHasSuffix(v string) predicate.Video {
+	return predicate.Video(sql.FieldHasSuffix(FieldPhotoPath, v))
+}
+
+// PhotoPathEqualFold applies the EqualFold predicate on the "photo_path" field.
+func PhotoPathEqualFold(v string) predicate.Video {
+	return predicate.Video(sql.FieldEqualFold(FieldPhotoPath, v))
+}
+
+// PhotoPathContainsFold applies the ContainsFold predicate on the "photo_path" field.
+func PhotoPathContainsFold(v string) predicate.Video {
+	return predicate.Video(sql.FieldContainsFold(FieldPhotoPath, v))
 }
 
 // UploadedAtEQ applies the EQ predicate on the "uploaded_at" field.

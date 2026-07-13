@@ -31,6 +31,8 @@ func (r *VideoRepository) Create(ctx context.Context, v *domain.Video) (*domain.
 		SetType(entvideo.Type(v.Type.String())).
 		SetStatus(entvideo.Status(v.Status.String())).
 		SetQualities(qualitiesToStrings(v.Qualities)).
+		SetRawPath(v.RawPath).
+		SetPhotoPath(v.PhotoPath).
 		SetUploadedAt(v.UploadedAt).
 		Save(ctx)
 	if err != nil {
@@ -146,6 +148,8 @@ func toDomain(v *ent.Video) *domain.Video {
 		Type:        domain.VideoType(v.Type),
 		Status:      domain.VideoStatus(v.Status),
 		Qualities:   stringsToQualities(v.Qualities),
+		RawPath:     v.RawPath,
+		PhotoPath:   v.PhotoPath,
 		UploadedAt:  v.UploadedAt,
 	}
 }
@@ -281,6 +285,8 @@ func cloneVideo(v *domain.Video) *domain.Video {
 		Type:        v.Type,
 		Status:      v.Status,
 		Qualities:   qualities,
+		RawPath:     v.RawPath,
+		PhotoPath:   v.PhotoPath,
 		UploadedAt:  v.UploadedAt,
 	}
 }
