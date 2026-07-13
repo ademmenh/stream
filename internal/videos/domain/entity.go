@@ -12,6 +12,7 @@ const (
 	Quality480p  VideoQuality = "480p"
 	Quality720p  VideoQuality = "720p"
 	Quality1080p VideoQuality = "1080p"
+	Quality4k    VideoQuality = "4k"
 )
 
 type VideoStatus string

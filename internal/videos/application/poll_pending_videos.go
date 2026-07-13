@@ -61,7 +61,7 @@ func (uc *PollPendingVideos) Execute(ctx context.Context) (*PollPendingVideosRes
 
 		if err := uc.queue.Enqueue(ctx, domain.VideoProcessingJob{
 			VideoID:            videoID,
-			RequestedQualities: []string{"480p", "720p", "1080p"},
+			RequestedQualities: []string{"480p", "720p", "1080p", "4k"},
 			IsAppend:           false,
 		}); err != nil {
 			slog.Error("poller: failed to enqueue video", "video_id", videoID, "error", err)
