@@ -67,6 +67,10 @@ func NewModule(deps Dependencies) *Module {
 		defaultRawUploadExpiry,
 		defaultPhotoUploadExpiry,
 	)
+	presignPathUseCase := application.NewPresignPath(
+		deps.VideoRepo,
+		deps.Storage,
+	)
 
 	handlers := presentation.NewVideosHandlers(
 		createVideoUseCase,
@@ -78,6 +82,7 @@ func NewModule(deps Dependencies) *Module {
 		listCatalogUseCase,
 		getVideoStreamUseCase,
 		getUploadUrlsUseCase,
+		presignPathUseCase,
 	)
 
 	return &Module{handlers: handlers}
@@ -96,4 +101,5 @@ func (m *Module) RegisterRoutes(group *echo.Group, jwtSecret string) {
 	videos := group.Group("/videos")
 	videos.GET("", m.handlers.ListCatalog)
 	videos.GET("/:id", m.handlers.GetVideoStream)
+	videos.GET("/:id/presign", m.handlers.PresignPath)
 }
