@@ -19,6 +19,7 @@ type VideosHandlers struct {
 	listCatalogUseCase       *application.ListCatalog
 	getVideoStreamUseCase    *application.GetVideoStream
 	getUploadUrlsUseCase     *application.GetUploadUrls
+	presignPathUseCase       *application.PresignPath
 }
 
 func NewVideosHandlers(
@@ -31,6 +32,7 @@ func NewVideosHandlers(
 	listCatalog *application.ListCatalog,
 	getVideoStream *application.GetVideoStream,
 	getUploadUrls *application.GetUploadUrls,
+	presignPath *application.PresignPath,
 ) *VideosHandlers {
 	return &VideosHandlers{
 		createVideoUseCase:       createVideo,
@@ -42,6 +44,7 @@ func NewVideosHandlers(
 		listCatalogUseCase:       listCatalog,
 		getVideoStreamUseCase:    getVideoStream,
 		getUploadUrlsUseCase:     getUploadUrls,
+		presignPathUseCase:       presignPath,
 	}
 }
 
@@ -240,6 +243,28 @@ func (h *VideosHandlers) GetUploadUrls(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, sharedpres.Response[*application.GetUploadUrlsOutput]{
 		Message:    "Upload URLs generated",
+		StatusCode: 200,
+		Data:       result,
+	})
+}
+
+func (h *VideosHandlers) PresignPath(c echo.Context) error {
+	videoID := c.Param("id")
+	path := c.QueryParam("path")
+	if path == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "path query parameter is required")
+	}
+
+	result, err := h.presignPathUseCase.Execute(c.Request().Context(), application.PresignPathInput{
+		VideoID: videoID,
+		Path:    path,
+	})
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, sharedpres.Response[*application.PresignPathOutput]{
+		Message:    "URL generated",
 		StatusCode: 200,
 		Data:       result,
 	})
