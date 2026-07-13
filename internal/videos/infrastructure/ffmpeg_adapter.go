@@ -61,6 +61,8 @@ func qualityToParams(quality string) (scale, maxrate, bufsize string) {
 		return "scale=-2:720", "2800k", "5600k"
 	case "1080p":
 		return "scale=-2:1080", "5000k", "10000k"
+	case "4k":
+		return "scale=-2:2160", "15000k", "30000k"
 	default:
 		return "", "", ""
 	}

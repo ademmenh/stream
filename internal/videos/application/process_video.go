@@ -194,6 +194,8 @@ func buildMasterPlaylist(input ProcessVideoInput, existingMaster []byte) []byte 
 			buf.WriteString("#EXT-X-STREAM-INF:BANDWIDTH=2800000,RESOLUTION=1280x720\n")
 		case "1080p":
 			buf.WriteString("#EXT-X-STREAM-INF:BANDWIDTH=5000000,RESOLUTION=1920x1080\n")
+		case "4k":
+			buf.WriteString("#EXT-X-STREAM-INF:BANDWIDTH=15000000,RESOLUTION=3840x2160\n")
 		}
 		buf.WriteString(quality + "/playlist.m3u8\n")
 	}
