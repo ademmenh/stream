@@ -3,6 +3,7 @@ package infrastructure
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/url"
 	"strings"
@@ -77,28 +78,8 @@ func (a *S3Adapter) Init(ctx context.Context) error {
 		}
 	}
 
-	if err := a.setBucketPolicy(ctx); err != nil {
-		return fmt.Errorf("failed to set bucket policy: %w", err)
-	}
-
 	slog.Info("S3 adapter initialized", "bucket", a.bucket)
 	return nil
-}
-
-func (a *S3Adapter) setBucketPolicy(ctx context.Context) error {
-	policy := fmt.Sprintf(`{
-		"Version": "2012-10-17",
-		"Statement": [
-			{
-				"Effect": "Allow",
-				"Principal": "*",
-				"Action": ["s3:GetObject"],
-				"Resource": ["arn:aws:s3:::%s/*"]
-			}
-		]
-	}`, a.bucket)
-
-	return a.client.SetBucketPolicy(ctx, a.bucket, policy)
 }
 
 func (a *S3Adapter) UploadFile(ctx context.Context, key string, body []byte, contentType string) (string, error) {
@@ -157,6 +138,20 @@ func (a *S3Adapter) ObjectExists(ctx context.Context, key string) (bool, error) 
 		return false, err
 	}
 	return true, nil
+}
+
+func (a *S3Adapter) DownloadFile(ctx context.Context, key string) ([]byte, error) {
+	reader, err := a.client.GetObject(ctx, a.bucket, key, minio.GetObjectOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get object: %w", err)
+	}
+	defer reader.Close()
+
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read object: %w", err)
+	}
+	return data, nil
 }
 
 func (a *S3Adapter) RemoveBucket(ctx context.Context) error {

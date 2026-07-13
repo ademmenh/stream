@@ -51,10 +51,8 @@ func (uc *ListCatalog) Execute(ctx context.Context, input ListCatalogInput) (*Li
 	}
 
 	output := make([]VideoOutput, len(videos))
-	thumbExpiry := 1 * time.Hour
 	for i, v := range videos {
-		thumbnailKey := "photos/" + v.GetID() + "/thumbnail.jpg"
-		thumbnailUrl, _ := uc.storage.GeneratePresignedGetUrl(ctx, thumbnailKey, thumbExpiry)
+		thumbnailUrl, _ := uc.storage.GeneratePresignedGetUrl(ctx, v.GetPhotoPath(), 1*time.Hour)
 
 		output[i] = VideoOutput{
 			ID:           v.GetID(),

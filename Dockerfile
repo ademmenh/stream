@@ -16,7 +16,7 @@ RUN curl -sSfL https://release.ariga.io/atlas/atlas-linux-amd64-latest -o /app/a
 
 FROM alpine:3.20
 
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates ffmpeg
 
 WORKDIR /app
 

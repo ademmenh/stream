@@ -190,7 +190,7 @@ func TestVideoE2E_CreateAndListAdmin(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, 201, created.StatusCode)
 	assert.NotEmpty(t, created.Data.ID)
-	assert.Contains(t, created.Data.VideoUploadUrl, "raws/")
+	assert.Contains(t, created.Data.RawUploadUrl, "raws/")
 	assert.Contains(t, created.Data.PhotoUploadUrl, "photos/")
 
 	listResp := doRequest(t, http.MethodGet, ts.URL+"/api/v1/admin/videos", adminToken, nil)
@@ -302,10 +302,14 @@ func TestVideoE2E_ReplaceVideo(t *testing.T) {
 	defer resp.Body.Close()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	var replace videoResp
+	var replace struct {
+		Message    string                       `json:"message"`
+		StatusCode int                          `json:"statusCode"`
+		Data       *videosapp.ReplaceVideoOutput `json:"data"`
+	}
 	err = json.NewDecoder(resp.Body).Decode(&replace)
 	require.NoError(t, err)
-	assert.Contains(t, replace.Data.VideoUploadUrl, "raws/"+created.Data.ID+".mp4")
+	assert.Contains(t, replace.Data.RawPath, "raws/"+created.Data.ID+".mp4")
 }
 
 func TestVideoE2E_GetVideoStream(t *testing.T) {

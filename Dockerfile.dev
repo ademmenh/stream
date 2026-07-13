@@ -1,6 +1,6 @@
 FROM golang:1.25-alpine
 
-RUN apk add --no-cache git curl ca-certificates
+RUN apk add --no-cache git curl ca-certificates ffmpeg
 
 RUN go install github.com/air-verse/air@latest
 

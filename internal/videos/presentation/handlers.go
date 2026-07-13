@@ -18,6 +18,7 @@ type VideosHandlers struct {
 	listVideosUseCase        *application.ListVideos
 	listCatalogUseCase       *application.ListCatalog
 	getVideoStreamUseCase    *application.GetVideoStream
+	getUploadUrlsUseCase     *application.GetUploadUrls
 }
 
 func NewVideosHandlers(
@@ -29,6 +30,7 @@ func NewVideosHandlers(
 	listVideos *application.ListVideos,
 	listCatalog *application.ListCatalog,
 	getVideoStream *application.GetVideoStream,
+	getUploadUrls *application.GetUploadUrls,
 ) *VideosHandlers {
 	return &VideosHandlers{
 		createVideoUseCase:       createVideo,
@@ -39,6 +41,7 @@ func NewVideosHandlers(
 		listVideosUseCase:        listVideos,
 		listCatalogUseCase:       listCatalog,
 		getVideoStreamUseCase:    getVideoStream,
+		getUploadUrlsUseCase:     getUploadUrls,
 	}
 }
 
@@ -220,6 +223,23 @@ func (h *VideosHandlers) GetVideoStream(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, sharedpres.Response[*application.VideoStreamOutput]{
 		Message:    "Video stream retrieved",
+		StatusCode: 200,
+		Data:       result,
+	})
+}
+
+func (h *VideosHandlers) GetUploadUrls(c echo.Context) error {
+	videoID := c.Param("id")
+
+	result, err := h.getUploadUrlsUseCase.Execute(c.Request().Context(), application.GetUploadUrlsInput{
+		VideoID: videoID,
+	})
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, sharedpres.Response[*application.GetUploadUrlsOutput]{
+		Message:    "Upload URLs generated",
 		StatusCode: 200,
 		Data:       result,
 	})

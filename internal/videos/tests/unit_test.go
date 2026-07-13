@@ -12,6 +12,7 @@ import (
 	videosapp "go-starter/internal/videos/application"
 	"go-starter/internal/videos/domain"
 	"go-starter/internal/videos/infrastructure"
+	videospres "go-starter/internal/videos/presentation"
 )
 
 type mockIDGenerator struct{}
@@ -61,6 +62,14 @@ func (m *mockStorageAdapter) UploadFile(ctx context.Context, key string, body []
 	return key, nil
 }
 
+func (m *mockStorageAdapter) DownloadFile(ctx context.Context, key string) ([]byte, error) {
+	data, ok := m.objects[key]
+	if !ok {
+		return nil, nil
+	}
+	return data, nil
+}
+
 type mockMessageQueue struct {
 	jobs []domain.VideoProcessingJob
 }
@@ -98,6 +107,8 @@ func seedVideo(t *testing.T, repo *infrastructure.InMemoryVideoRepository, id, t
 		Type:        videoType,
 		Status:      status,
 		Qualities:   []domain.VideoQuality{},
+		RawPath:     "raws/" + id + ".mp4",
+		PhotoPath:   "photos/" + id + "/thumbnail.jpg",
 		UploadedAt:  time.Now().UTC(),
 	}
 	_, err := repo.Create(context.Background(), v)
@@ -107,8 +118,8 @@ func seedVideo(t *testing.T, repo *infrastructure.InMemoryVideoRepository, id, t
 
 func TestCreateVideo_Success(t *testing.T) {
 	repo := infrastructure.NewInMemoryVideoRepository()
-	storage := newMockStorageAdapter()
 
+	storage := newMockStorageAdapter()
 	uc := videosapp.NewCreateVideo(repo, storage, &mockIDGenerator{}, 60, 15)
 	result, err := uc.Execute(context.Background(), videosapp.CreateVideoInput{
 		Title:       "Test Movie",
@@ -118,7 +129,7 @@ func TestCreateVideo_Success(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.NotEmpty(t, result.ID)
-	assert.Contains(t, result.VideoUploadUrl, "raws/")
+	assert.Contains(t, result.RawUploadUrl, "raws/")
 	assert.Contains(t, result.PhotoUploadUrl, "photos/")
 
 	v, err := repo.FindByID(context.Background(), result.ID)
@@ -130,9 +141,8 @@ func TestCreateVideo_Success(t *testing.T) {
 
 func TestCreateVideo_InvalidType(t *testing.T) {
 	repo := infrastructure.NewInMemoryVideoRepository()
-	storage := newMockStorageAdapter()
 
-	uc := videosapp.NewCreateVideo(repo, storage, &mockIDGenerator{}, 60, 15)
+	uc := videosapp.NewCreateVideo(repo, newMockStorageAdapter(), &mockIDGenerator{}, 60, 15)
 	_, err := uc.Execute(context.Background(), videosapp.CreateVideoInput{
 		Title:       "Invalid",
 		Description: "",
@@ -183,16 +193,15 @@ func TestTriggerProcessing_NotFound(t *testing.T) {
 
 func TestReplaceVideo_Success(t *testing.T) {
 	repo := infrastructure.NewInMemoryVideoRepository()
-	storage := newMockStorageAdapter()
 	seedVideo(t, repo, "v1", "Movie", "desc", domain.VideoTypeMovie, domain.StatusReady)
 
-	uc := videosapp.NewReplaceVideo(repo, storage, 60)
+	uc := videosapp.NewReplaceVideo(repo)
 	result, err := uc.Execute(context.Background(), videosapp.ReplaceVideoInput{
 		VideoID: "v1",
 	})
 
 	require.NoError(t, err)
-	assert.Contains(t, result.VideoUploadUrl, "raws/v1.mp4")
+	assert.Contains(t, result.RawPath, "raws/v1.mp4")
 
 	v, err := repo.FindByID(context.Background(), "v1")
 	require.NoError(t, err)
@@ -333,4 +342,70 @@ func TestGetVideoStream_NotReady(t *testing.T) {
 	assert.Error(t, err)
 	var notReady *domain.VideoNotReadyError
 	assert.ErrorAs(t, err, &notReady)
+}
+
+func TestProducerWorker_PollsAndEnqueues(t *testing.T) {
+	repo := infrastructure.NewInMemoryVideoRepository()
+	queue := newMockMessageQueue()
+	seedVideo(t, repo, "v1", "Movie1", "desc", domain.VideoTypeMovie, domain.StatusPendingUpload)
+	seedVideo(t, repo, "v2", "Movie2", "desc", domain.VideoTypeMovie, domain.StatusPendingUpload)
+
+	uc := videosapp.NewPollPendingVideos(repo, queue)
+	worker := videospres.NewProducerWorker(uc)
+
+	result, err := uc.Execute(context.Background())
+	require.NoError(t, err)
+	assert.Len(t, result.ProcessedIDs, 2)
+	assert.Len(t, queue.jobs, 2)
+	_ = worker
+}
+
+func TestProducerWorker_SkipsIfAlreadyRunning(t *testing.T) {
+	repo := infrastructure.NewInMemoryVideoRepository()
+	queue := newMockMessageQueue()
+	uc := videosapp.NewPollPendingVideos(repo, queue)
+	worker := videospres.NewProducerWorker(uc)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan struct{})
+
+	go func() {
+		worker.Start(ctx)
+		close(done)
+	}()
+
+	cancel()
+	<-done
+
+	result, err := uc.Execute(context.Background())
+	require.NoError(t, err)
+	assert.Len(t, result.ProcessedIDs, 0)
+}
+
+func TestConsumerQueueWorker_ProcessesJob(t *testing.T) {
+	repo := infrastructure.NewInMemoryVideoRepository()
+	storage := newMockStorageAdapter()
+	queue := newMockMessageQueue()
+	seedVideo(t, repo, "v1", "Movie", "desc", domain.VideoTypeMovie, domain.StatusProcessing)
+
+	uc := videosapp.NewProcessVideo(repo, storage, &mockTranscoder{})
+	worker := videospres.NewConsumerQueueWorker(queue, uc)
+
+	queue.jobs = append(queue.jobs, domain.VideoProcessingJob{
+		VideoID:            "v1",
+		RequestedQualities: []string{"480p"},
+		IsAppend:           false,
+	})
+
+	err := uc.Execute(context.Background(), videosapp.ProcessVideoInput{
+		VideoID:            "v1",
+		RequestedQualities: []string{"480p"},
+		IsAppend:           false,
+	})
+	assert.NoError(t, err)
+
+	v, err := repo.FindByID(context.Background(), "v1")
+	require.NoError(t, err)
+	assert.Equal(t, domain.StatusReady, v.Status)
+	_ = worker
 }

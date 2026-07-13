@@ -39,8 +39,6 @@ func NewModule(deps Dependencies) *Module {
 	)
 	replaceVideoUseCase := application.NewReplaceVideo(
 		deps.VideoRepo,
-		deps.Storage,
-		defaultRawUploadExpiry,
 	)
 	regenerateQualityUseCase := application.NewRegenerateQuality(
 		deps.VideoRepo,
@@ -63,6 +61,12 @@ func NewModule(deps Dependencies) *Module {
 		deps.VideoRepo,
 		deps.Storage,
 	)
+	getUploadUrlsUseCase := application.NewGetUploadUrls(
+		deps.VideoRepo,
+		deps.Storage,
+		defaultRawUploadExpiry,
+		defaultPhotoUploadExpiry,
+	)
 
 	handlers := presentation.NewVideosHandlers(
 		createVideoUseCase,
@@ -73,6 +77,7 @@ func NewModule(deps Dependencies) *Module {
 		listVideosUseCase,
 		listCatalogUseCase,
 		getVideoStreamUseCase,
+		getUploadUrlsUseCase,
 	)
 
 	return &Module{handlers: handlers}
@@ -86,6 +91,7 @@ func (m *Module) RegisterRoutes(group *echo.Group, jwtSecret string) {
 	admin.POST("/videos/:id/regenerate", m.handlers.RegenerateQuality)
 	admin.DELETE("/videos/:id", m.handlers.DeleteVideo)
 	admin.GET("/videos", m.handlers.ListVideos)
+	admin.GET("/videos/:id/upload-urls", m.handlers.GetUploadUrls)
 
 	videos := group.Group("/videos")
 	videos.GET("", m.handlers.ListCatalog)

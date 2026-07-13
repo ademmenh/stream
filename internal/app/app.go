@@ -112,5 +112,9 @@ func CreateApp(cfg config.IConfig) *echo.Echo {
 	consumer := videospres.NewConsumerQueueWorker(videoQueue, processVideoUseCase)
 	go consumer.Start(context.Background())
 
+	pollPendingVideos := videosapp.NewPollPendingVideos(videoRepo, videoQueue)
+	producerWorker := videospres.NewProducerWorker(pollPendingVideos)
+	go producerWorker.Start(context.Background())
+
 	return e
 }

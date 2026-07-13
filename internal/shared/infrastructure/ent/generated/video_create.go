@@ -67,6 +67,34 @@ func (_c *VideoCreate) SetQualities(v []string) *VideoCreate {
 	return _c
 }
 
+// SetRawPath sets the "raw_path" field.
+func (_c *VideoCreate) SetRawPath(v string) *VideoCreate {
+	_c.mutation.SetRawPath(v)
+	return _c
+}
+
+// SetNillableRawPath sets the "raw_path" field if the given value is not nil.
+func (_c *VideoCreate) SetNillableRawPath(v *string) *VideoCreate {
+	if v != nil {
+		_c.SetRawPath(*v)
+	}
+	return _c
+}
+
+// SetPhotoPath sets the "photo_path" field.
+func (_c *VideoCreate) SetPhotoPath(v string) *VideoCreate {
+	_c.mutation.SetPhotoPath(v)
+	return _c
+}
+
+// SetNillablePhotoPath sets the "photo_path" field if the given value is not nil.
+func (_c *VideoCreate) SetNillablePhotoPath(v *string) *VideoCreate {
+	if v != nil {
+		_c.SetPhotoPath(*v)
+	}
+	return _c
+}
+
 // SetUploadedAt sets the "uploaded_at" field.
 func (_c *VideoCreate) SetUploadedAt(v time.Time) *VideoCreate {
 	_c.mutation.SetUploadedAt(v)
@@ -142,6 +170,14 @@ func (_c *VideoCreate) defaults() {
 		v := video.DefaultQualities
 		_c.mutation.SetQualities(v)
 	}
+	if _, ok := _c.mutation.RawPath(); !ok {
+		v := video.DefaultRawPath
+		_c.mutation.SetRawPath(v)
+	}
+	if _, ok := _c.mutation.PhotoPath(); !ok {
+		v := video.DefaultPhotoPath
+		_c.mutation.SetPhotoPath(v)
+	}
 	if _, ok := _c.mutation.UploadedAt(); !ok {
 		v := video.DefaultUploadedAt()
 		_c.mutation.SetUploadedAt(v)
@@ -188,6 +224,22 @@ func (_c *VideoCreate) check() error {
 	}
 	if _, ok := _c.mutation.Qualities(); !ok {
 		return &ValidationError{Name: "qualities", err: errors.New(`generated: missing required field "Video.qualities"`)}
+	}
+	if _, ok := _c.mutation.RawPath(); !ok {
+		return &ValidationError{Name: "raw_path", err: errors.New(`generated: missing required field "Video.raw_path"`)}
+	}
+	if v, ok := _c.mutation.RawPath(); ok {
+		if err := video.RawPathValidator(v); err != nil {
+			return &ValidationError{Name: "raw_path", err: fmt.Errorf(`generated: validator failed for field "Video.raw_path": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.PhotoPath(); !ok {
+		return &ValidationError{Name: "photo_path", err: errors.New(`generated: missing required field "Video.photo_path"`)}
+	}
+	if v, ok := _c.mutation.PhotoPath(); ok {
+		if err := video.PhotoPathValidator(v); err != nil {
+			return &ValidationError{Name: "photo_path", err: fmt.Errorf(`generated: validator failed for field "Video.photo_path": %w`, err)}
+		}
 	}
 	if _, ok := _c.mutation.UploadedAt(); !ok {
 		return &ValidationError{Name: "uploaded_at", err: errors.New(`generated: missing required field "Video.uploaded_at"`)}
@@ -246,6 +298,14 @@ func (_c *VideoCreate) createSpec() (*Video, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Qualities(); ok {
 		_spec.SetField(video.FieldQualities, field.TypeJSON, value)
 		_node.Qualities = value
+	}
+	if value, ok := _c.mutation.RawPath(); ok {
+		_spec.SetField(video.FieldRawPath, field.TypeString, value)
+		_node.RawPath = value
+	}
+	if value, ok := _c.mutation.PhotoPath(); ok {
+		_spec.SetField(video.FieldPhotoPath, field.TypeString, value)
+		_node.PhotoPath = value
 	}
 	if value, ok := _c.mutation.UploadedAt(); ok {
 		_spec.SetField(video.FieldUploadedAt, field.TypeTime, value)

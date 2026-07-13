@@ -38,6 +38,12 @@ func (Video) Fields() []ent.Field {
 			Default("PendingUpload"),
 		field.JSON("qualities", []string{}).
 			Default([]string{}),
+		field.String("raw_path").
+			MaxLen(500).
+			Default(""),
+		field.String("photo_path").
+			MaxLen(500).
+			Default(""),
 		field.Time("uploaded_at").
 			Default(time.Now).
 			Immutable(),

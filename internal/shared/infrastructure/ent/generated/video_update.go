@@ -96,6 +96,34 @@ func (_u *VideoUpdate) AppendQualities(v []string) *VideoUpdate {
 	return _u
 }
 
+// SetRawPath sets the "raw_path" field.
+func (_u *VideoUpdate) SetRawPath(v string) *VideoUpdate {
+	_u.mutation.SetRawPath(v)
+	return _u
+}
+
+// SetNillableRawPath sets the "raw_path" field if the given value is not nil.
+func (_u *VideoUpdate) SetNillableRawPath(v *string) *VideoUpdate {
+	if v != nil {
+		_u.SetRawPath(*v)
+	}
+	return _u
+}
+
+// SetPhotoPath sets the "photo_path" field.
+func (_u *VideoUpdate) SetPhotoPath(v string) *VideoUpdate {
+	_u.mutation.SetPhotoPath(v)
+	return _u
+}
+
+// SetNillablePhotoPath sets the "photo_path" field if the given value is not nil.
+func (_u *VideoUpdate) SetNillablePhotoPath(v *string) *VideoUpdate {
+	if v != nil {
+		_u.SetPhotoPath(*v)
+	}
+	return _u
+}
+
 // Mutation returns the VideoMutation object of the builder.
 func (_u *VideoUpdate) Mutation() *VideoMutation {
 	return _u.mutation
@@ -150,6 +178,16 @@ func (_u *VideoUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`generated: validator failed for field "Video.status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.RawPath(); ok {
+		if err := video.RawPathValidator(v); err != nil {
+			return &ValidationError{Name: "raw_path", err: fmt.Errorf(`generated: validator failed for field "Video.raw_path": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.PhotoPath(); ok {
+		if err := video.PhotoPathValidator(v); err != nil {
+			return &ValidationError{Name: "photo_path", err: fmt.Errorf(`generated: validator failed for field "Video.photo_path": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -184,6 +222,12 @@ func (_u *VideoUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, video.FieldQualities, value)
 		})
+	}
+	if value, ok := _u.mutation.RawPath(); ok {
+		_spec.SetField(video.FieldRawPath, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.PhotoPath(); ok {
+		_spec.SetField(video.FieldPhotoPath, field.TypeString, value)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -273,6 +317,34 @@ func (_u *VideoUpdateOne) AppendQualities(v []string) *VideoUpdateOne {
 	return _u
 }
 
+// SetRawPath sets the "raw_path" field.
+func (_u *VideoUpdateOne) SetRawPath(v string) *VideoUpdateOne {
+	_u.mutation.SetRawPath(v)
+	return _u
+}
+
+// SetNillableRawPath sets the "raw_path" field if the given value is not nil.
+func (_u *VideoUpdateOne) SetNillableRawPath(v *string) *VideoUpdateOne {
+	if v != nil {
+		_u.SetRawPath(*v)
+	}
+	return _u
+}
+
+// SetPhotoPath sets the "photo_path" field.
+func (_u *VideoUpdateOne) SetPhotoPath(v string) *VideoUpdateOne {
+	_u.mutation.SetPhotoPath(v)
+	return _u
+}
+
+// SetNillablePhotoPath sets the "photo_path" field if the given value is not nil.
+func (_u *VideoUpdateOne) SetNillablePhotoPath(v *string) *VideoUpdateOne {
+	if v != nil {
+		_u.SetPhotoPath(*v)
+	}
+	return _u
+}
+
 // Mutation returns the VideoMutation object of the builder.
 func (_u *VideoUpdateOne) Mutation() *VideoMutation {
 	return _u.mutation
@@ -340,6 +412,16 @@ func (_u *VideoUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`generated: validator failed for field "Video.status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.RawPath(); ok {
+		if err := video.RawPathValidator(v); err != nil {
+			return &ValidationError{Name: "raw_path", err: fmt.Errorf(`generated: validator failed for field "Video.raw_path": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.PhotoPath(); ok {
+		if err := video.PhotoPathValidator(v); err != nil {
+			return &ValidationError{Name: "photo_path", err: fmt.Errorf(`generated: validator failed for field "Video.photo_path": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -391,6 +473,12 @@ func (_u *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error)
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, video.FieldQualities, value)
 		})
+	}
+	if value, ok := _u.mutation.RawPath(); ok {
+		_spec.SetField(video.FieldRawPath, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.PhotoPath(); ok {
+		_spec.SetField(video.FieldPhotoPath, field.TypeString, value)
 	}
 	_node = &Video{config: _u.config}
 	_spec.Assign = _node.assignValues

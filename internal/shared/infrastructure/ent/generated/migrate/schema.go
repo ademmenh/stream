@@ -35,6 +35,8 @@ var (
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"movie", "series", "documentary"}},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"PendingUpload", "Processing", "Ready", "Failed", "Replacing"}, Default: "PendingUpload"},
 		{Name: "qualities", Type: field.TypeJSON},
+		{Name: "raw_path", Type: field.TypeString, Size: 500, Default: ""},
+		{Name: "photo_path", Type: field.TypeString, Size: 500, Default: ""},
 		{Name: "uploaded_at", Type: field.TypeTime},
 	}
 	// VideosTable holds the schema information for the "videos" table.
