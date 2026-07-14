@@ -81,6 +81,20 @@ func (_c *UserSchemaCreate) SetNillableBanned(v *bool) *UserSchemaCreate {
 	return _c
 }
 
+// SetProfileImage sets the "profile_image" field.
+func (_c *UserSchemaCreate) SetProfileImage(v string) *UserSchemaCreate {
+	_c.mutation.SetProfileImage(v)
+	return _c
+}
+
+// SetNillableProfileImage sets the "profile_image" field if the given value is not nil.
+func (_c *UserSchemaCreate) SetNillableProfileImage(v *string) *UserSchemaCreate {
+	if v != nil {
+		_c.SetProfileImage(*v)
+	}
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *UserSchemaCreate) SetCreatedAt(v time.Time) *UserSchemaCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -222,6 +236,11 @@ func (_c *UserSchemaCreate) check() error {
 	if _, ok := _c.mutation.Banned(); !ok {
 		return &ValidationError{Name: "banned", err: errors.New(`generated: missing required field "UserSchema.banned"`)}
 	}
+	if v, ok := _c.mutation.ProfileImage(); ok {
+		if err := userschema.ProfileImageValidator(v); err != nil {
+			return &ValidationError{Name: "profile_image", err: fmt.Errorf(`generated: validator failed for field "UserSchema.profile_image": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`generated: missing required field "UserSchema.created_at"`)}
 	}
@@ -286,6 +305,10 @@ func (_c *UserSchemaCreate) createSpec() (*UserSchema, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Banned(); ok {
 		_spec.SetField(userschema.FieldBanned, field.TypeBool, value)
 		_node.Banned = value
+	}
+	if value, ok := _c.mutation.ProfileImage(); ok {
+		_spec.SetField(userschema.FieldProfileImage, field.TypeString, value)
+		_node.ProfileImage = &value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(userschema.FieldCreatedAt, field.TypeTime, value)

@@ -7,23 +7,22 @@ import (
 	"go-starter/internal/users/domain"
 )
 
-type UpdateUserInput struct {
-	ID      string
-	Name    *string
-	Email   *string
-	Phone   *string
-	NewRole *string
+type UpdateCurrentUserInput struct {
+	ID    string
+	Name  *string
+	Email *string
+	Phone *string
 }
 
-type UpdateUser struct {
+type UpdateCurrentUser struct {
 	userRepo domain.IUserRepository
 }
 
-func NewUpdateUser(userRepo domain.IUserRepository) *UpdateUser {
-	return &UpdateUser{userRepo: userRepo}
+func NewUpdateCurrentUser(userRepo domain.IUserRepository) *UpdateCurrentUser {
+	return &UpdateCurrentUser{userRepo: userRepo}
 }
 
-func (uc *UpdateUser) Execute(ctx context.Context, input UpdateUserInput) (*UserOutput, error) {
+func (uc *UpdateCurrentUser) Execute(ctx context.Context, input UpdateCurrentUserInput) (*UserOutput, error) {
 	user, err := uc.userRepo.FindByID(ctx, input.ID)
 	if err != nil {
 		return nil, err
@@ -48,9 +47,6 @@ func (uc *UpdateUser) Execute(ctx context.Context, input UpdateUserInput) (*User
 			return nil, err
 		}
 		user.Phone = &phone
-	}
-	if input.NewRole != nil {
-		user.Role = *input.NewRole
 	}
 
 	updated, err := uc.userRepo.Update(ctx, user)

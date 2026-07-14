@@ -18,6 +18,7 @@ var (
 		{Name: "password_hash", Type: field.TypeString, Size: 255},
 		{Name: "role", Type: field.TypeString, Size: 50, Default: "client"},
 		{Name: "banned", Type: field.TypeBool, Default: false},
+		{Name: "profile_image", Type: field.TypeString, Nullable: true, Size: 500},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}
