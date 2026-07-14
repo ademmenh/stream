@@ -3,12 +3,22 @@ package infrastructure
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os/exec"
 	"path/filepath"
 
 	"go-starter/internal/videos/domain"
 )
+
+type ffprobeStream struct {
+	CodecType string `json:"codec_type"`
+	Height    int    `json:"height"`
+}
+
+type ffprobeOutput struct {
+	Streams []ffprobeStream `json:"streams"`
+}
 
 type FfmpegAdapter struct{}
 
@@ -66,4 +76,35 @@ func qualityToParams(quality string) (scale, maxrate, bufsize string) {
 	default:
 		return "", "", ""
 	}
+}
+
+func (a *FfmpegAdapter) ProbeVideoHeight(ctx context.Context, videoPath string) (int, error) {
+	args := []string{
+		"-v", "quiet",
+		"-print_format", "json",
+		"-show_streams",
+		videoPath,
+	}
+
+	cmd := exec.CommandContext(ctx, "ffprobe", args...)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		return 0, fmt.Errorf("ffprobe: %w\n%s", err, stderr.String())
+	}
+
+	var probe ffprobeOutput
+	if err := json.Unmarshal(stdout.Bytes(), &probe); err != nil {
+		return 0, fmt.Errorf("parse ffprobe output: %w", err)
+	}
+
+	for _, s := range probe.Streams {
+		if s.CodecType == "video" && s.Height > 0 {
+			return s.Height, nil
+		}
+	}
+
+	return 0, fmt.Errorf("no video stream found in %s", videoPath)
 }

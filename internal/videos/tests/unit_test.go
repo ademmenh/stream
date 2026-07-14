@@ -98,6 +98,10 @@ func (m *mockTranscoder) TranscodeToHLS(ctx context.Context, params domain.Trans
 	return nil
 }
 
+func (m *mockTranscoder) ProbeVideoHeight(ctx context.Context, videoPath string) (int, error) {
+	return 1080, nil
+}
+
 func seedVideo(t *testing.T, repo *infrastructure.InMemoryVideoRepository, id, title, desc string, videoType domain.VideoType, status domain.VideoStatus) *domain.Video {
 	t.Helper()
 	v := &domain.Video{

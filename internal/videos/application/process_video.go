@@ -55,6 +55,17 @@ func (uc *ProcessVideo) Execute(ctx context.Context, input ProcessVideoInput) er
 		return uc.failVideo(ctx, input.VideoID, fmt.Errorf("download raw: %w", err))
 	}
 
+	inputHeight, err := uc.transcoder.ProbeVideoHeight(ctx, rawPath)
+	if err != nil {
+		return uc.failVideo(ctx, input.VideoID, fmt.Errorf("probe video height: %w", err))
+	}
+
+	input.RequestedQualities = filterUpscalingQualities(input.RequestedQualities, inputHeight)
+	if len(input.RequestedQualities) == 0 {
+		slog.Warn("all requested qualities would upscale, skipping processing", "video_id", input.VideoID, "source_height", inputHeight)
+		return nil
+	}
+
 	var existingMaster []byte
 	if input.IsAppend {
 		existingMaster, err = uc.downloadMaster(ctx, input.VideoID)
@@ -223,4 +234,17 @@ func stringsToDomainQualities(qualities []string) []domain.VideoQuality {
 		res[i] = domain.VideoQuality(q)
 	}
 	return res
+}
+
+func filterUpscalingQualities(qualities []string, sourceHeight int) []string {
+	var filtered []string
+	for _, q := range qualities {
+		targetHeight := domain.QualityTargetHeight(q)
+		if targetHeight > 0 && targetHeight <= sourceHeight {
+			filtered = append(filtered, q)
+		} else {
+			slog.Info("skipping quality to prevent upscaling", "quality", q, "target_height", targetHeight, "source_height", sourceHeight)
+		}
+	}
+	return filtered
 }
