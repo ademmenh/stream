@@ -92,6 +92,8 @@ func CreateApp(cfg config.IConfig) *echo.Echo {
 	usersModule := users.NewModule(users.Dependencies{
 		UserRepo:        userRepo,
 		PasswordAdapter: passwordAdapter,
+		Storage:         usersinfra.NewUserStorageAdapter(s3Adapter),
+		IDGenerator:     idGen,
 	})
 	usersModule.RegisterRoutes(v1.Group("/users"), cfg.JWTAccessTokenSecret())
 

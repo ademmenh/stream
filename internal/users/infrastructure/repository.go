@@ -29,15 +29,18 @@ func (r *UserRepository) Create(ctx context.Context, u *domain.User) (*domain.Us
 		p := u.Phone.String()
 		phoneStr = &p
 	}
-	created, err := r.client.UserSchema.Create().
+	create := r.client.UserSchema.Create().
 		SetID(uuid.MustParse(u.ID.String())).
 		SetName(u.Name).
 		SetEmail(u.Email.String()).
 		SetNillablePhone(phoneStr).
 		SetPasswordHash(u.PasswordHash).
 		SetRole(u.Role).
-		SetBanned(u.Banned).
-		Save(ctx)
+		SetBanned(u.Banned)
+	if u.ProfileImage != nil {
+		create = create.SetProfileImage(*u.ProfileImage)
+	}
+	created, err := create.Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("create user: %w", err)
 	}
@@ -113,14 +116,17 @@ func (r *UserRepository) Update(ctx context.Context, u *domain.User) (*domain.Us
 		p := u.Phone.String()
 		phoneStr = &p
 	}
-	updated, err := r.client.UserSchema.UpdateOneID(uuid.MustParse(u.ID.String())).
+	update := r.client.UserSchema.UpdateOneID(uuid.MustParse(u.ID.String())).
 		SetName(u.Name).
 		SetEmail(u.Email.String()).
 		SetNillablePhone(phoneStr).
 		SetPasswordHash(u.PasswordHash).
 		SetRole(u.Role).
-		SetBanned(u.Banned).
-		Save(ctx)
+		SetBanned(u.Banned)
+	if u.ProfileImage != nil {
+		update = update.SetProfileImage(*u.ProfileImage)
+	}
+	updated, err := update.Save(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, nil
@@ -325,6 +331,10 @@ func cloneUser(u *domain.User) *domain.User {
 	if u.Phone != nil {
 		p := *u.Phone
 		c.Phone = &p
+	}
+	if u.ProfileImage != nil {
+		pi := *u.ProfileImage
+		c.ProfileImage = &pi
 	}
 	return c
 }

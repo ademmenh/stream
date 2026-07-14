@@ -50,6 +50,10 @@ func (m *integrationPWAdapter) Hash(plain string) (string, error) {
 	return "hashed-" + plain, nil
 }
 
+func (m *integrationPWAdapter) Compare(plain, hashed string) bool {
+	return plain == hashed[len("hashed-"):]
+}
+
 func setupIntegrationRepo(t *testing.T) *infrastructure.UserRepository {
 	t.Helper()
 	if testing.Short() {
@@ -82,7 +86,7 @@ func TestGetUser_Integration(t *testing.T) {
 	created, err := repo.Create(context.Background(), user)
 	require.NoError(t, err)
 
-	uc := usersapp.NewGetUser(repo)
+	uc := usersapp.NewGetUser(repo, &mockStorageAdapter{})
 	result, err := uc.Execute(context.Background(), created.ID.String())
 
 	require.NoError(t, err)
@@ -92,7 +96,7 @@ func TestGetUser_Integration(t *testing.T) {
 
 func TestGetUser_NotFound_Integration(t *testing.T) {
 	repo := setupIntegrationRepo(t)
-	uc := usersapp.NewGetUser(repo)
+	uc := usersapp.NewGetUser(repo, &mockStorageAdapter{})
 	_, err := uc.Execute(context.Background(), "00000000-0000-0000-0000-000000000000")
 	assert.Error(t, err)
 	assert.ErrorContains(t, err, "not found")
@@ -130,7 +134,7 @@ func TestUpdateUser_Integration(t *testing.T) {
 	require.NoError(t, err)
 
 	newName := "Alice Updated"
-	uc := usersapp.NewUpdateUser(repo, &integrationPWAdapter{})
+	uc := usersapp.NewUpdateUser(repo)
 	result, err := uc.Execute(context.Background(), usersapp.UpdateUserInput{
 		ID:   created.ID.String(),
 		Name: &newName,

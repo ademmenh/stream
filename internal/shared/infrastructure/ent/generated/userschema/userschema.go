@@ -26,6 +26,8 @@ const (
 	FieldRole = "role"
 	// FieldBanned holds the string denoting the banned field in the database.
 	FieldBanned = "banned"
+	// FieldProfileImage holds the string denoting the profile_image field in the database.
+	FieldProfileImage = "profile_image"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -43,6 +45,7 @@ var Columns = []string{
 	FieldPasswordHash,
 	FieldRole,
 	FieldBanned,
+	FieldProfileImage,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
@@ -72,6 +75,8 @@ var (
 	RoleValidator func(string) error
 	// DefaultBanned holds the default value on creation for the "banned" field.
 	DefaultBanned bool
+	// ProfileImageValidator is a validator for the "profile_image" field. It is called by the builders before save.
+	ProfileImageValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
@@ -118,6 +123,11 @@ func ByRole(opts ...sql.OrderTermOption) OrderOption {
 // ByBanned orders the results by the banned field.
 func ByBanned(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBanned, opts...).ToFunc()
+}
+
+// ByProfileImage orders the results by the profile_image field.
+func ByProfileImage(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProfileImage, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

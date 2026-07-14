@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -18,6 +19,20 @@ type mockPasswordAdapter struct{}
 
 func (m *mockPasswordAdapter) Hash(plain string) (string, error) {
 	return "hashed-" + plain, nil
+}
+
+func (m *mockPasswordAdapter) Compare(plain, hashed string) bool {
+	return plain == hashed[len("hashed-"):]
+}
+
+type mockStorageAdapter struct{}
+
+func (m *mockStorageAdapter) GeneratePresignedGetUrl(ctx context.Context, key string, expiry time.Duration) (string, error) {
+	return "https://example.com/" + key, nil
+}
+
+func (m *mockStorageAdapter) GeneratePresignedUploadUrl(ctx context.Context, key string, expiry time.Duration) (string, error) {
+	return "https://example.com/upload/" + key, nil
 }
 
 func newTestUser(id, name, email string) *usersdomain.User {
@@ -42,7 +57,7 @@ func TestGetUser_Success(t *testing.T) {
 	user := newTestUser("u1", "Alice", "alice@test.com")
 	seedUser(t, repo, user)
 
-	uc := usersapp.NewGetUser(repo)
+	uc := usersapp.NewGetUser(repo, &mockStorageAdapter{})
 	result, err := uc.Execute(context.Background(), "u1")
 
 	require.NoError(t, err)
@@ -54,7 +69,7 @@ func TestGetUser_Success(t *testing.T) {
 
 func TestGetUser_NotFound(t *testing.T) {
 	repo := infrastructure.NewInMemoryUserRepository()
-	uc := usersapp.NewGetUser(repo)
+	uc := usersapp.NewGetUser(repo, &mockStorageAdapter{})
 
 	_, err := uc.Execute(context.Background(), "nonexistent")
 	assert.Error(t, err)
@@ -123,7 +138,7 @@ func TestUpdateUser_Success(t *testing.T) {
 	seedUser(t, repo, user)
 
 	newName := "Alice Updated"
-	uc := usersapp.NewUpdateUser(repo, &mockPasswordAdapter{})
+	uc := usersapp.NewUpdateUser(repo)
 	result, err := uc.Execute(context.Background(), usersapp.UpdateUserInput{
 		ID:   "u1",
 		Name: &newName,
@@ -135,7 +150,7 @@ func TestUpdateUser_Success(t *testing.T) {
 
 func TestUpdateUser_NotFound(t *testing.T) {
 	repo := infrastructure.NewInMemoryUserRepository()
-	uc := usersapp.NewUpdateUser(repo, &mockPasswordAdapter{})
+	uc := usersapp.NewUpdateUser(repo)
 	name := "Nobody"
 	_, err := uc.Execute(context.Background(), usersapp.UpdateUserInput{
 		ID:   "nonexistent",
@@ -198,4 +213,47 @@ func TestBanUser_CannotBanAdmin(t *testing.T) {
 	assert.Error(t, err)
 	var cantBanErr *usersdomain.CannotBanAdminError
 	assert.ErrorAs(t, err, &cantBanErr)
+}
+
+func TestUpdateCurrentUser_Success(t *testing.T) {
+	repo := infrastructure.NewInMemoryUserRepository()
+	user := newTestUser("u1", "Alice", "alice@test.com")
+	seedUser(t, repo, user)
+
+	newName := "Alice Updated"
+	uc := usersapp.NewUpdateCurrentUser(repo)
+	result, err := uc.Execute(context.Background(), usersapp.UpdateCurrentUserInput{
+		ID:   "u1",
+		Name: &newName,
+	})
+
+	require.NoError(t, err)
+	assert.Equal(t, newName, result.Name)
+}
+
+func TestUpdateCurrentUser_CannotChangeRole(t *testing.T) {
+	repo := infrastructure.NewInMemoryUserRepository()
+	user := newTestUser("u1", "Alice", "alice@test.com")
+	seedUser(t, repo, user)
+
+	newName := "Alice Updated"
+	uc := usersapp.NewUpdateCurrentUser(repo)
+	result, err := uc.Execute(context.Background(), usersapp.UpdateCurrentUserInput{
+		ID:   "u1",
+		Name: &newName,
+	})
+
+	require.NoError(t, err)
+	assert.Equal(t, "client", result.Role)
+}
+
+func TestUpdateCurrentUser_NotFound(t *testing.T) {
+	repo := infrastructure.NewInMemoryUserRepository()
+	uc := usersapp.NewUpdateCurrentUser(repo)
+	name := "Nobody"
+	_, err := uc.Execute(context.Background(), usersapp.UpdateCurrentUserInput{
+		ID:   "nonexistent",
+		Name: &name,
+	})
+	assert.Error(t, err)
 }

@@ -42,6 +42,7 @@ type UserSchemaMutation struct {
 	password_hash *string
 	role          *string
 	banned        *bool
+	profile_image *string
 	created_at    *time.Time
 	updated_at    *time.Time
 	clearedFields map[string]struct{}
@@ -383,6 +384,55 @@ func (m *UserSchemaMutation) ResetBanned() {
 	m.banned = nil
 }
 
+// SetProfileImage sets the "profile_image" field.
+func (m *UserSchemaMutation) SetProfileImage(s string) {
+	m.profile_image = &s
+}
+
+// ProfileImage returns the value of the "profile_image" field in the mutation.
+func (m *UserSchemaMutation) ProfileImage() (r string, exists bool) {
+	v := m.profile_image
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProfileImage returns the old "profile_image" field's value of the UserSchema entity.
+// If the UserSchema object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserSchemaMutation) OldProfileImage(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProfileImage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProfileImage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProfileImage: %w", err)
+	}
+	return oldValue.ProfileImage, nil
+}
+
+// ClearProfileImage clears the value of the "profile_image" field.
+func (m *UserSchemaMutation) ClearProfileImage() {
+	m.profile_image = nil
+	m.clearedFields[userschema.FieldProfileImage] = struct{}{}
+}
+
+// ProfileImageCleared returns if the "profile_image" field was cleared in this mutation.
+func (m *UserSchemaMutation) ProfileImageCleared() bool {
+	_, ok := m.clearedFields[userschema.FieldProfileImage]
+	return ok
+}
+
+// ResetProfileImage resets all changes to the "profile_image" field.
+func (m *UserSchemaMutation) ResetProfileImage() {
+	m.profile_image = nil
+	delete(m.clearedFields, userschema.FieldProfileImage)
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (m *UserSchemaMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -489,7 +539,7 @@ func (m *UserSchemaMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserSchemaMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.name != nil {
 		fields = append(fields, userschema.FieldName)
 	}
@@ -507,6 +557,9 @@ func (m *UserSchemaMutation) Fields() []string {
 	}
 	if m.banned != nil {
 		fields = append(fields, userschema.FieldBanned)
+	}
+	if m.profile_image != nil {
+		fields = append(fields, userschema.FieldProfileImage)
 	}
 	if m.created_at != nil {
 		fields = append(fields, userschema.FieldCreatedAt)
@@ -534,6 +587,8 @@ func (m *UserSchemaMutation) Field(name string) (ent.Value, bool) {
 		return m.Role()
 	case userschema.FieldBanned:
 		return m.Banned()
+	case userschema.FieldProfileImage:
+		return m.ProfileImage()
 	case userschema.FieldCreatedAt:
 		return m.CreatedAt()
 	case userschema.FieldUpdatedAt:
@@ -559,6 +614,8 @@ func (m *UserSchemaMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldRole(ctx)
 	case userschema.FieldBanned:
 		return m.OldBanned(ctx)
+	case userschema.FieldProfileImage:
+		return m.OldProfileImage(ctx)
 	case userschema.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case userschema.FieldUpdatedAt:
@@ -614,6 +671,13 @@ func (m *UserSchemaMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetBanned(v)
 		return nil
+	case userschema.FieldProfileImage:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProfileImage(v)
+		return nil
 	case userschema.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -661,6 +725,9 @@ func (m *UserSchemaMutation) ClearedFields() []string {
 	if m.FieldCleared(userschema.FieldPhone) {
 		fields = append(fields, userschema.FieldPhone)
 	}
+	if m.FieldCleared(userschema.FieldProfileImage) {
+		fields = append(fields, userschema.FieldProfileImage)
+	}
 	return fields
 }
 
@@ -677,6 +744,9 @@ func (m *UserSchemaMutation) ClearField(name string) error {
 	switch name {
 	case userschema.FieldPhone:
 		m.ClearPhone()
+		return nil
+	case userschema.FieldProfileImage:
+		m.ClearProfileImage()
 		return nil
 	}
 	return fmt.Errorf("unknown UserSchema nullable field %s", name)
@@ -703,6 +773,9 @@ func (m *UserSchemaMutation) ResetField(name string) error {
 		return nil
 	case userschema.FieldBanned:
 		m.ResetBanned()
+		return nil
+	case userschema.FieldProfileImage:
+		m.ResetProfileImage()
 		return nil
 	case userschema.FieldCreatedAt:
 		m.ResetCreatedAt()

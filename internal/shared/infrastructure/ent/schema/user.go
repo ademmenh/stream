@@ -44,6 +44,10 @@ func (UserSchema) Fields() []ent.Field {
 			Default("client"),
 		field.Bool("banned").
 			Default(false),
+		field.String("profile_image").
+			MaxLen(500).
+			Optional().
+			Nillable(),
 		field.Time("created_at").
 			Default(time.Now).
 			Immutable(),
