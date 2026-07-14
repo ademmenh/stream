@@ -118,6 +118,26 @@ func (_u *UserSchemaUpdate) SetNillableBanned(v *bool) *UserSchemaUpdate {
 	return _u
 }
 
+// SetProfileImage sets the "profile_image" field.
+func (_u *UserSchemaUpdate) SetProfileImage(v string) *UserSchemaUpdate {
+	_u.mutation.SetProfileImage(v)
+	return _u
+}
+
+// SetNillableProfileImage sets the "profile_image" field if the given value is not nil.
+func (_u *UserSchemaUpdate) SetNillableProfileImage(v *string) *UserSchemaUpdate {
+	if v != nil {
+		_u.SetProfileImage(*v)
+	}
+	return _u
+}
+
+// ClearProfileImage clears the value of the "profile_image" field.
+func (_u *UserSchemaUpdate) ClearProfileImage() *UserSchemaUpdate {
+	_u.mutation.ClearProfileImage()
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *UserSchemaUpdate) SetUpdatedAt(v time.Time) *UserSchemaUpdate {
 	_u.mutation.SetUpdatedAt(v)
@@ -192,6 +212,11 @@ func (_u *UserSchemaUpdate) check() error {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`generated: validator failed for field "UserSchema.role": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.ProfileImage(); ok {
+		if err := userschema.ProfileImageValidator(v); err != nil {
+			return &ValidationError{Name: "profile_image", err: fmt.Errorf(`generated: validator failed for field "UserSchema.profile_image": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -227,6 +252,12 @@ func (_u *UserSchemaUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	}
 	if value, ok := _u.mutation.Banned(); ok {
 		_spec.SetField(userschema.FieldBanned, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.ProfileImage(); ok {
+		_spec.SetField(userschema.FieldProfileImage, field.TypeString, value)
+	}
+	if _u.mutation.ProfileImageCleared() {
+		_spec.ClearField(userschema.FieldProfileImage, field.TypeString)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(userschema.FieldUpdatedAt, field.TypeTime, value)
@@ -341,6 +372,26 @@ func (_u *UserSchemaUpdateOne) SetNillableBanned(v *bool) *UserSchemaUpdateOne {
 	return _u
 }
 
+// SetProfileImage sets the "profile_image" field.
+func (_u *UserSchemaUpdateOne) SetProfileImage(v string) *UserSchemaUpdateOne {
+	_u.mutation.SetProfileImage(v)
+	return _u
+}
+
+// SetNillableProfileImage sets the "profile_image" field if the given value is not nil.
+func (_u *UserSchemaUpdateOne) SetNillableProfileImage(v *string) *UserSchemaUpdateOne {
+	if v != nil {
+		_u.SetProfileImage(*v)
+	}
+	return _u
+}
+
+// ClearProfileImage clears the value of the "profile_image" field.
+func (_u *UserSchemaUpdateOne) ClearProfileImage() *UserSchemaUpdateOne {
+	_u.mutation.ClearProfileImage()
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *UserSchemaUpdateOne) SetUpdatedAt(v time.Time) *UserSchemaUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
@@ -428,6 +479,11 @@ func (_u *UserSchemaUpdateOne) check() error {
 			return &ValidationError{Name: "role", err: fmt.Errorf(`generated: validator failed for field "UserSchema.role": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.ProfileImage(); ok {
+		if err := userschema.ProfileImageValidator(v); err != nil {
+			return &ValidationError{Name: "profile_image", err: fmt.Errorf(`generated: validator failed for field "UserSchema.profile_image": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -480,6 +536,12 @@ func (_u *UserSchemaUpdateOne) sqlSave(ctx context.Context) (_node *UserSchema, 
 	}
 	if value, ok := _u.mutation.Banned(); ok {
 		_spec.SetField(userschema.FieldBanned, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.ProfileImage(); ok {
+		_spec.SetField(userschema.FieldProfileImage, field.TypeString, value)
+	}
+	if _u.mutation.ProfileImageCleared() {
+		_spec.ClearField(userschema.FieldProfileImage, field.TypeString)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(userschema.FieldUpdatedAt, field.TypeTime, value)

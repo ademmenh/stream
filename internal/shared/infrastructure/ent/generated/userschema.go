@@ -30,6 +30,8 @@ type UserSchema struct {
 	Role string `json:"role,omitempty"`
 	// Banned holds the value of the "banned" field.
 	Banned bool `json:"banned,omitempty"`
+	// ProfileImage holds the value of the "profile_image" field.
+	ProfileImage *string `json:"profile_image,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -44,7 +46,7 @@ func (*UserSchema) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case userschema.FieldBanned:
 			values[i] = new(sql.NullBool)
-		case userschema.FieldName, userschema.FieldEmail, userschema.FieldPhone, userschema.FieldPasswordHash, userschema.FieldRole:
+		case userschema.FieldName, userschema.FieldEmail, userschema.FieldPhone, userschema.FieldPasswordHash, userschema.FieldRole, userschema.FieldProfileImage:
 			values[i] = new(sql.NullString)
 		case userschema.FieldCreatedAt, userschema.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -107,6 +109,13 @@ func (_m *UserSchema) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field banned", values[i])
 			} else if value.Valid {
 				_m.Banned = value.Bool
+			}
+		case userschema.FieldProfileImage:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field profile_image", values[i])
+			} else if value.Valid {
+				_m.ProfileImage = new(string)
+				*_m.ProfileImage = value.String
 			}
 		case userschema.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -175,6 +184,11 @@ func (_m *UserSchema) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("banned=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Banned))
+	builder.WriteString(", ")
+	if v := _m.ProfileImage; v != nil {
+		builder.WriteString("profile_image=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

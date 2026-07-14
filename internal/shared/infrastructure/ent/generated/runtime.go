@@ -85,12 +85,16 @@ func init() {
 	userschemaDescBanned := userschemaFields[6].Descriptor()
 	// userschema.DefaultBanned holds the default value on creation for the banned field.
 	userschema.DefaultBanned = userschemaDescBanned.Default.(bool)
+	// userschemaDescProfileImage is the schema descriptor for profile_image field.
+	userschemaDescProfileImage := userschemaFields[7].Descriptor()
+	// userschema.ProfileImageValidator is a validator for the "profile_image" field. It is called by the builders before save.
+	userschema.ProfileImageValidator = userschemaDescProfileImage.Validators[0].(func(string) error)
 	// userschemaDescCreatedAt is the schema descriptor for created_at field.
-	userschemaDescCreatedAt := userschemaFields[7].Descriptor()
+	userschemaDescCreatedAt := userschemaFields[8].Descriptor()
 	// userschema.DefaultCreatedAt holds the default value on creation for the created_at field.
 	userschema.DefaultCreatedAt = userschemaDescCreatedAt.Default.(func() time.Time)
 	// userschemaDescUpdatedAt is the schema descriptor for updated_at field.
-	userschemaDescUpdatedAt := userschemaFields[8].Descriptor()
+	userschemaDescUpdatedAt := userschemaFields[9].Descriptor()
 	// userschema.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	userschema.DefaultUpdatedAt = userschemaDescUpdatedAt.Default.(func() time.Time)
 	// userschema.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

@@ -25,3 +25,13 @@ type CannotBanAdminError struct{}
 
 func (e *CannotBanAdminError) Error() string { return "Cannot ban an admin user" }
 func (e *CannotBanAdminError) isUserError()  {}
+
+type InvalidOldPasswordError struct{}
+
+func (e *InvalidOldPasswordError) Error() string { return "Old password is incorrect" }
+func (e *InvalidOldPasswordError) isUserError()  {}
+
+type PasswordMismatchError struct{}
+
+func (e *PasswordMismatchError) Error() string { return "New password and confirmation do not match" }
+func (e *PasswordMismatchError) isUserError()  {}

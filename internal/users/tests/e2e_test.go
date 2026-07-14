@@ -59,6 +59,8 @@ func setupUsersE2EServer(t *testing.T) *httptest.Server {
 	usersModule := users.NewModule(users.Dependencies{
 		UserRepo:        userRepo,
 		PasswordAdapter: passwordAdapter,
+		Storage:         &mockStorageAdapter{},
+		IDGenerator:     idGen,
 	})
 	usersModule.RegisterRoutes(v1.Group("/users"), cfg.JWTAccessTokenSecret())
 

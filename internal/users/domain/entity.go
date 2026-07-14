@@ -10,6 +10,7 @@ type User struct {
 	PasswordHash string
 	Role         string
 	Banned       bool
+	ProfileImage *string
 }
 
 func NewUser(id shareddomain.Id, name string, email shareddomain.Email, passwordHash, role string, phone *shareddomain.Phone) *User {
@@ -23,13 +24,14 @@ func NewUser(id shareddomain.Id, name string, email shareddomain.Email, password
 	}
 }
 
-func (e *User) GetID() string                 { return e.ID.String() }
-func (e *User) GetName() string               { return e.Name }
-func (e *User) GetEmail() string              { return e.Email.String() }
-func (e *User) GetPhone() *shareddomain.Phone  { return e.Phone }
-func (e *User) GetPasswordHash() string       { return e.PasswordHash }
-func (e *User) GetRole() string               { return e.Role }
-func (e *User) GetBanned() bool               { return e.Banned }
+func (e *User) GetID() string                   { return e.ID.String() }
+func (e *User) GetName() string                 { return e.Name }
+func (e *User) GetEmail() string                { return e.Email.String() }
+func (e *User) GetPhone() *shareddomain.Phone    { return e.Phone }
+func (e *User) GetPasswordHash() string         { return e.PasswordHash }
+func (e *User) GetRole() string                 { return e.Role }
+func (e *User) GetBanned() bool                 { return e.Banned }
+func (e *User) GetProfileImage() *string        { return e.ProfileImage }
 
 func (e *User) IsAdmin() bool  { return e.Role == "admin" }
 func (e *User) IsClient() bool { return e.Role == "client" }

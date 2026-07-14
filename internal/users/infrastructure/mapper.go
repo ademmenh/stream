@@ -23,6 +23,7 @@ func toDomain(u *generated.UserSchema) *usersdomain.User {
 		PasswordHash: u.PasswordHash,
 		Role:         u.Role,
 		Banned:       u.Banned,
+		ProfileImage: u.ProfileImage,
 	}
 }
 
