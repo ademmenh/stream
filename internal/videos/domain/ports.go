@@ -51,4 +51,5 @@ type TranscodeParams struct {
 
 type ITranscoder interface {
 	TranscodeToHLS(ctx context.Context, params TranscodeParams) error
+	ProbeVideoHeight(ctx context.Context, videoPath string) (int, error)
 }

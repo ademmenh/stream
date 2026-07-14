@@ -15,6 +15,21 @@ const (
 	Quality4k    VideoQuality = "4k"
 )
 
+func QualityTargetHeight(quality string) int {
+	switch quality {
+	case "480p":
+		return 480
+	case "720p":
+		return 720
+	case "1080p":
+		return 1080
+	case "4k":
+		return 2160
+	default:
+		return 0
+	}
+}
+
 type VideoStatus string
 
 const (
