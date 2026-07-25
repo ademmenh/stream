@@ -123,14 +123,6 @@ make deps
 make dev
 ```
 
-### With Docker
-
-```bash
-cp .env.example .env
-make build:dev
-make start:dev
-```
-
 ### Migrations
 
 ```bash

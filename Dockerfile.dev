@@ -14,8 +14,6 @@ RUN go mod download && go mod verify
 
 COPY . .
 
-RUN mkdir -p logs
-
 EXPOSE 8000
 
 CMD ["air", "-c", ".air.toml"]

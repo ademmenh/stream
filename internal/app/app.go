@@ -32,7 +32,12 @@ func CreateApp(cfg config.IConfig) *echo.Echo {
 	e.HTTPErrorHandler = presentation.CustomHTTPErrorHandler
 
 	e.Use(middleware.RequestID())
-	e.Use(middleware.Recover())
+	e.Use(middleware.RecoverWithConfig(middleware.RecoverConfig{
+		LogErrorFunc: func(c echo.Context, err error, stack []byte) error {
+			slog.Error("panic recovered", "error", err, "stack", string(stack))
+			return err
+		},
+	}))
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     cfg.CORSOrigins(),
 		AllowCredentials: cfg.CORSCredentials(),
@@ -44,7 +49,7 @@ func CreateApp(cfg config.IConfig) *echo.Echo {
 	presentation.UserErrorHandler = userspresentation.UserErrorHandler
 	presentation.VideoErrorHandler = videospres.VideoErrorHandler
 
-	sharedinfra.InitLogger(cfg.LogsDirname())
+	sharedinfra.InitLogger()
 
 	client, err := sharedinfra.NewDB(cfg.DatabaseURL())
 	if err != nil {

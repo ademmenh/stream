@@ -12,9 +12,6 @@ type IConfig interface {
 	DBPassword() string
 	DBName() string
 
-	LogsDirname() string
-	RetentionDays() int
-
 	JWTAccessTokenSecret() string
 	JWTRefreshTokenSecret() string
 	JWTAccessTokenExpiry() int

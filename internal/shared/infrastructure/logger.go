@@ -1,28 +1,19 @@
 package infrastructure
 
 import (
-	"io"
+	"context"
 	"log/slog"
 	"os"
-	"path/filepath"
 	"time"
 )
 
-func InitLogger(logsDir string) {
-	if err := os.MkdirAll(logsDir, 0755); err != nil {
-		slog.Error("failed to create logs dir", "error", err)
-		return
-	}
+type levelSplitHandler struct {
+	stdout slog.Handler
+	stderr slog.Handler
+}
 
-	logFile := filepath.Join(logsDir, "app.log")
-	f, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil {
-		slog.Error("failed to open log file", "error", err)
-		return
-	}
-
-	multiWriter := io.MultiWriter(os.Stdout, f)
-	handler := slog.NewJSONHandler(multiWriter, &slog.HandlerOptions{
+func newJSONHandler(w *os.File) slog.Handler {
+	return slog.NewJSONHandler(w, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
 		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
 			if a.Key == slog.TimeKey {
@@ -31,5 +22,31 @@ func InitLogger(logsDir string) {
 			return a
 		},
 	})
-	slog.SetDefault(slog.New(handler))
+}
+
+func (h *levelSplitHandler) Enabled(ctx context.Context, level slog.Level) bool {
+	return h.stdout.Enabled(ctx, level)
+}
+
+func (h *levelSplitHandler) Handle(ctx context.Context, r slog.Record) error {
+	if r.Level >= slog.LevelError {
+		return h.stderr.Handle(ctx, r)
+	}
+	return h.stdout.Handle(ctx, r)
+}
+
+func (h *levelSplitHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return &levelSplitHandler{stdout: h.stdout.WithAttrs(attrs), stderr: h.stderr.WithAttrs(attrs)}
+}
+
+func (h *levelSplitHandler) WithGroup(name string) slog.Handler {
+	return &levelSplitHandler{stdout: h.stdout.WithGroup(name), stderr: h.stderr.WithGroup(name)}
+}
+
+func InitLogger() {
+	slog.SetDefault(slog.New(&levelSplitHandler{
+		stdout: newJSONHandler(os.Stdout),
+		stderr: newJSONHandler(os.Stderr),
+	}))
+	slog.Info("app started")
 }
